@@ -1,0 +1,590 @@
+{
+  "name": "Google Review Request \u2014 TEMPLATE",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Review Request (TEMPLATE)\nPlaceholders: REPLACE_TWILIO_CRED_ID, env TWILIO_FROM, CFG (business, Google review link, owner phone).\n\nFSM/job-complete -> POST /webhook/job-completed {phone, first_name, tech, job_id, flagged}. Twilio messaging -> /webhook/review-inbound-sms. Link-click redirect / review poller -> /webhook/review-event {phone, event}.\n\nNO REVIEW GATING: every customer gets the same public link; unhappy replies additionally alert the owner. No incentives. 180-day dedupe, 9AM-7PM AZ window, 2-message cap. State in workflow static data (use a DB/Sheet in production).",
+        "height": 420,
+        "width": 520
+      },
+      "id": "30ddc1af-ca8c-4bae-99b2-5f969d208b12",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-completed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "65761db8-d37c-4be1-8867-7047bec53bbd",
+      "name": "Job Completed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "5822d289-0c9c-48d6-aace-ec45a112d2c5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG={business:'Desert Flow Plumbing',reviewLink:'https://g.page/r/REPLACE_REVIEW_ID/review',ownerPhone:'+15205550199'};function nextAllowed(d,startH,endH){ // Arizona = UTC-7, no DST\n const az=new Date(d.getTime()-7*3600e3);const h=az.getUTCHours();\n if(h>=startH&&h<endH)return d;\n const t=new Date(az);if(h>=endH)t.setUTCDate(t.getUTCDate()+1);t.setUTCHours(startH,0,0,0);return new Date(t.getTime()+7*3600e3);}\nconst b=$input.first().json.body||{};const phone=(b.phone||'').replace(/[^\\d+]/g,'');const sd=$getWorkflowStaticData('global');sd.asked=sd.asked||{};sd.suppressed=sd.suppressed||{};sd.req=sd.req||{};\nlet skip=null;if(!phone)skip='no mobile';else if(sd.suppressed[phone])skip='opted out';else if(b.flagged)skip='job flagged (complaint/warranty)';\nelse if(sd.asked[phone]&&Date.now()-sd.asked[phone]<180*864e5)skip='asked within 180 days';\nconst sendAt=nextAllowed(new Date(Date.now()+90*60e3),9,19); // +1.5h, 9AM-7PM AZ window (else next morning)\nif(!skip){sd.asked[phone]=Date.now();sd.req[phone]={state:'queued'};}\nreturn [{json:{phone,first:b.first_name||'there',tech:b.tech||'our team',jobId:b.job_id,skip,proceed:!skip,sendAt:sendAt.toISOString(),...CFG}}];"
+      },
+      "id": "bc735caa-a228-41ba-9efa-3b9868063aae",
+      "name": "Validate + 180-day Dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.proceed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "9e88d403-f641-4a07-9d1f-a6e081480ae4",
+      "name": "Proceed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{$json.sendAt}}"
+      },
+      "id": "82267509-48fc-47cb-bf21-ecf9c0ef7b9b",
+      "name": "Wait until send window",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "webhookId": "356e2234-bd7d-4d03-b6cc-919432e71be6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$input.first().json;const sd=$getWorkflowStaticData('global');const r=sd.req[j.phone]||{};\nreturn [{json:{...j,continue:!sd.suppressed[j.phone]&&r.state==='queued'}}];"
+      },
+      "id": "16ce866b-62f1-4ef0-987b-31bf5c0e4d4a",
+      "name": "Still OK to send?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.continue}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "561cebaa-99e0-4b5c-aef5-86f64de19587",
+      "name": "Send OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.phone}}",
+        "message": "=Hi {{$json.first}}, thanks for choosing {{$json.business}} today! If {{$json.tech}} took good care of you, a quick Google review helps a lot: {{$json.reviewLink}}. Reply STOP to opt out.",
+        "options": {}
+      },
+      "id": "2de26fb2-f6fc-4621-9b37-6fa0aa3e0469",
+      "name": "SMS 1 \u2014 Review Request",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function nextAllowed(d,startH,endH){ // Arizona = UTC-7, no DST\n const az=new Date(d.getTime()-7*3600e3);const h=az.getUTCHours();\n if(h>=startH&&h<endH)return d;\n const t=new Date(az);if(h>=endH)t.setUTCDate(t.getUTCDate()+1);t.setUTCHours(startH,0,0,0);return new Date(t.getTime()+7*3600e3);}const j=$('Still OK to send?').first().json;const sd=$getWorkflowStaticData('global');sd.req[j.phone].state='sent';\nreturn [{json:{...j,resumeAt:nextAllowed(new Date(Date.now()+2*864e5),9,19).toISOString()}}];"
+      },
+      "id": "5933f494-f1fb-4b6c-90f8-20a902f22150",
+      "name": "Calc reminder (+2 days)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{$json.resumeAt}}"
+      },
+      "id": "f2f23c15-e827-4ef1-8d40-7c3464a239c7",
+      "name": "Wait 2 days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        0
+      ],
+      "webhookId": "9f47e253-2ea0-43ec-8212-0989a80f3dee"
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$input.first().json;const sd=$getWorkflowStaticData('global');const r=sd.req[j.phone]||{};\n// stops: clicked, reviewed, replied, negative, STOP, flagged\nreturn [{json:{...j,continue:!sd.suppressed[j.phone]&&r.state==='sent'}}];"
+      },
+      "id": "26177e6f-d383-4189-bec7-edaca713cc79",
+      "name": "Reminder Stop Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.continue}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "3234bbf4-3906-4dab-a715-0ed6a3b9143f",
+      "name": "Remind?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.phone}}",
+        "message": "=Hi {{$json.first}}, just a quick reminder. Your feedback means a lot to our small team: {{$json.reviewLink}}. Thanks!",
+        "options": {}
+      },
+      "id": "f52a105a-55c9-498a-be8f-88a539002ce3",
+      "name": "SMS 2 \u2014 Final Reminder",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$('Reminder Stop Check').first().json;const sd=$getWorkflowStaticData('global');sd.req[j.phone].state='reminded';return [{json:{...j}}];"
+      },
+      "id": "c0bb4099-a4ff-4c46-b1fd-6f869c270a46",
+      "name": "Mark Done (2-msg cap)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-inbound-sms",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "77a35b21-46ec-4b4e-8ac4-7454484d980f",
+      "name": "Inbound SMS Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ],
+      "webhookId": "e89b6cfc-7792-488e-804c-93c0e3103cd7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG={business:'Desert Flow Plumbing',reviewLink:'https://g.page/r/REPLACE_REVIEW_ID/review',ownerPhone:'+15205550199'};\nconst b=$input.first().json.body||{};const from=b.From||'';const text=(b.Body||'').trim();const kw=text.toUpperCase();\nconst sd=$getWorkflowStaticData('global');sd.req=sd.req||{};sd.suppressed=sd.suppressed||{};let kind='reply',reply=null;\nif(['STOP','STOPALL','UNSUBSCRIBE','CANCEL','END','QUIT'].includes(kw)){kind='stop';sd.suppressed[from]=Date.now();reply=`You're unsubscribed from ${CFG.business}. No more messages.`;}\nelse if(kw==='START'){kind='start';delete sd.suppressed[from];reply=`You're re-subscribed to ${CFG.business}. Reply STOP to opt out.`;}\nelse if(kw==='HELP'){kind='help';reply=`${CFG.business} review requests. Reply STOP to opt out.`;}\nelse if(/bad|terrible|awful|unhappy|disappoint|rude|late|never|still (leak|broken)|not (fixed|happy|working)|refund|worst|overcharg/i.test(text))kind='unhappy';\nif(sd.req[from]&&kind!=='help'&&kind!=='start')sd.req[from].state=kind; // any reply pauses the sequence; never re-ask\n// NO REVIEW GATING: the review link is never withheld or changed based on sentiment.\nreturn [{json:{from,text,kind,reply,...CFG}}];"
+      },
+      "id": "98dd83f1-082e-4de2-ac79-e5e803d6f577",
+      "name": "Classify Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.kind}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "unhappy",
+              "output": 0
+            },
+            {
+              "value2": "reply",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      },
+      "id": "26ff67c9-c4cd-41bd-8dd9-189e0a34edf6",
+      "name": "Route",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        520,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.ownerPhone}}",
+        "message": "=\u26a0\ufe0f Unhappy reply from {{$json.from}}: \"{{$json.text}}\". Sequence paused \u2014 please call them personally.",
+        "options": {}
+      },
+      "id": "2be6e364-5777-44ca-9358-bac7c5644922",
+      "name": "\ud83d\udea8 Owner Alert \u2014 Unhappy Customer",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        780,
+        320
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.ownerPhone}}",
+        "message": "=Review-request reply from {{$json.from}}: {{$json.text}}",
+        "options": {}
+      },
+      "id": "df41dc11-5ece-483a-99d4-700cda9b61b6",
+      "name": "Forward Reply to Owner",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        320
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.from}}",
+        "message": "={{$json.reply}}",
+        "options": {}
+      },
+      "id": "1a1e6af2-da01-424d-b3a5-3acded08001f",
+      "name": "STOP/START/HELP Auto-Reply",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        320
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-event",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "1e3e3652-752b-48dc-bd29-15c37066cb74",
+      "name": "Link Clicked / Review Detected Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        560
+      ],
+      "webhookId": "a67f32b2-66a9-4675-9d6b-0437528f78de"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b=$input.first().json.body||{};const sd=$getWorkflowStaticData('global');sd.req=sd.req||{};if(sd.req[b.phone])sd.req[b.phone].state=b.event||'clicked';return [{json:b}];"
+      },
+      "id": "65046cb4-1939-4e43-b9b8-3d1d6bc14dde",
+      "name": "Mark Clicked/Reviewed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        560
+      ]
+    }
+  ],
+  "connections": {
+    "Job Completed Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate + 180-day Dedupe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate + 180-day Dedupe": {
+      "main": [
+        [
+          {
+            "node": "Proceed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proceed?": {
+      "main": [
+        [
+          {
+            "node": "Wait until send window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until send window": {
+      "main": [
+        [
+          {
+            "node": "Still OK to send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still OK to send?": {
+      "main": [
+        [
+          {
+            "node": "Send OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send OK?": {
+      "main": [
+        [
+          {
+            "node": "SMS 1 \u2014 Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS 1 \u2014 Review Request": {
+      "main": [
+        [
+          {
+            "node": "Calc reminder (+2 days)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc reminder (+2 days)": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 days": {
+      "main": [
+        [
+          {
+            "node": "Reminder Stop Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder Stop Check": {
+      "main": [
+        [
+          {
+            "node": "Remind?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remind?": {
+      "main": [
+        [
+          {
+            "node": "SMS 2 \u2014 Final Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS 2 \u2014 Final Reminder": {
+      "main": [
+        [
+          {
+            "node": "Mark Done (2-msg cap)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inbound SMS Webhook": {
+      "main": [
+        [
+          {
+            "node": "Classify Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Reply": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "\ud83d\udea8 Owner Alert \u2014 Unhappy Customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Forward Reply to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP/START/HELP Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link Clicked / Review Detected Webhook": {
+      "main": [
+        [
+          {
+            "node": "Mark Clicked/Reviewed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Phoenix"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}

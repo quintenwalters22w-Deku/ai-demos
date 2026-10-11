@@ -1,0 +1,655 @@
+{
+  "name": "Missed-Call Text-Back (Lead Recovery) \u2014 TEMPLATE",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Missed-Call Text-Back (TEMPLATE)\nPlaceholders: Twilio credential id REPLACE_TWILIO_CRED_ID, env TWILIO_FROM, CFG block in Code nodes (business, links, owner phone, blocklist).\n\nWire Twilio voice status callback -> /webhook/missed-call-status, messaging webhook -> /webhook/missed-call-inbound-sms, booking/FSM -> /webhook/missed-call-close {phone, reason}.\n\nState kept in workflow static data (only persists for ACTIVE workflows; swap for a DB/Sheet in production). Quiet hours 8PM-8AM Arizona for SMS 2/3. Cap 3 msgs. A2P 10DLC registration required before going live.",
+        "height": 420,
+        "width": 520
+      },
+      "id": "99d78312-0014-43fb-bc86-f22269aa0659",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "missed-call-status",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "be8a0512-1e62-4128-ad09-f964522def1a",
+      "name": "Twilio Call Status Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "96b7243b-84e6-46af-b571-cc451ce79517"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG={business:'Desert Flow Plumbing',bizPhone:'(520) 555-0142',bookingLink:'https://example.com/book',ownerPhone:'+15205550199',blocklist:['+15205550111']};\nconst b=$input.first().json.body||{};const status=(b.CallStatus||b.DialCallStatus||'').toLowerCase();\nconst from=b.From||'';const sd=$getWorkflowStaticData('global');sd.leads=sd.leads||{};sd.suppressed=sd.suppressed||{};\nconst missed=['no-answer','busy','failed','canceled'].includes(status)||b.voicemail==='true';\nlet skip=null;\nif(!missed)skip='answered';else if(!from)skip='no caller id';else if(sd.suppressed[from])skip='opted out';else if(CFG.blocklist.includes(from))skip='blocklist';\nelse if(sd.leads[from]&&sd.leads[from].state==='open'&&Date.now()-sd.leads[from].ts<24*3600e3)skip='open thread <24h';\nif(!skip)sd.leads[from]={state:'open',ts:Date.now(),sent:0};\nreturn [{json:{from,status,skip,proceed:!skip,...CFG,callTime:new Date().toISOString()}}];"
+      },
+      "id": "8f153f9f-05e5-4f61-85a5-cb35b70ba6ac",
+      "name": "Filter Missed + Dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.proceed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "b694b9b1-3884-451e-9191-b5907c8f5c50",
+      "name": "Proceed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.from}}",
+        "message": "=Hi, this is {{$json.business}}. Sorry we missed your call! What can we help with? You can also book here: {{$json.bookingLink}}. Reply STOP to opt out.",
+        "options": {}
+      },
+      "id": "8fbdc399-a315-40c9-8398-74d5409a1b19",
+      "name": "SMS 1 \u2014 Instant Text",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$('Filter Missed + Dedupe').item.json.ownerPhone}}",
+        "message": "=Missed call from {{$('Filter Missed + Dedupe').item.json.from}} at {{$now.setZone('America/Phoenix').toFormat('h:mm a')}}. Auto-text sent.",
+        "options": {}
+      },
+      "id": "6144b9d5-fdb8-4712-9bf4-953c63080650",
+      "name": "Owner Alert",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function nextAllowed(d,startH,endH){ // Arizona = UTC-7, no DST\n const az=new Date(d.getTime()-7*3600e3);const h=az.getUTCHours();\n if(h>=startH&&h<endH)return d;\n const t=new Date(az);if(h>=endH)t.setUTCDate(t.getUTCDate()+1);t.setUTCHours(startH,0,0,0);return new Date(t.getTime()+7*3600e3);}\nconst j=$('Filter Missed + Dedupe').first().json;const sd=$getWorkflowStaticData('global');sd.leads[j.from].sent=1;\nconst at=nextAllowed(new Date(Date.now()+2*3600e3),8,20);return [{json:{...j,resumeAt:at.toISOString()}}];"
+      },
+      "id": "f681750f-0940-4f24-b15a-12b07d4beea0",
+      "name": "Calc +2h (quiet hours 8PM-8AM)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{$json.resumeAt}}"
+      },
+      "id": "01343118-ff38-44a1-9e5a-715729df92b6",
+      "name": "Wait for SMS 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        0
+      ],
+      "webhookId": "8544a42a-866b-44bc-9b9d-2c4f6d7acb76"
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$input.first().json;const sd=$getWorkflowStaticData('global');const L=sd.leads[j.from]||{};\nconst stop=sd.suppressed[j.from]||L.state!=='open'||(L.sent||0)>=3; // reply/booked/callback/manual close/STOP/cap\nreturn [{json:{...j,continue:!stop,leadState:L.state}}];"
+      },
+      "id": "b962eb7d-03d7-4701-9b22-670fd89e11fb",
+      "name": "Stop Check 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.continue}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "d73e243a-84cb-4f87-91c9-731c1f4b2162",
+      "name": "Still Open? (1)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.from}}",
+        "message": "=Just checking in from {{$json.business}}. Still need help? Grab a time here: {{$json.bookingLink}}",
+        "options": {}
+      },
+      "id": "c2ed8232-d9d0-4b47-bab7-32deb5c41616",
+      "name": "SMS 2 \u2014 Check-in",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function nextAllowed(d,startH,endH){ // Arizona = UTC-7, no DST\n const az=new Date(d.getTime()-7*3600e3);const h=az.getUTCHours();\n if(h>=startH&&h<endH)return d;\n const t=new Date(az);if(h>=endH)t.setUTCDate(t.getUTCDate()+1);t.setUTCHours(startH,0,0,0);return new Date(t.getTime()+7*3600e3);}\nconst j=$('Stop Check 1').first().json;const sd=$getWorkflowStaticData('global');sd.leads[j.from].sent=2;\nreturn [{json:{...j,resumeAt:nextAllowed(new Date(Date.now()+24*3600e3),8,20).toISOString()}}];"
+      },
+      "id": "0f0c1b41-7155-4432-9e32-900e6d6f6573",
+      "name": "Calc +24h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{$json.resumeAt}}"
+      },
+      "id": "2e43d63a-e507-4ef9-83c9-d0ca77e6677a",
+      "name": "Wait for SMS 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        0
+      ],
+      "webhookId": "825d1d06-e748-4ff8-a471-5458f8ccec2f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$input.first().json;const sd=$getWorkflowStaticData('global');const L=sd.leads[j.from]||{};\nconst stop=sd.suppressed[j.from]||L.state!=='open'||(L.sent||0)>=3; // reply/booked/callback/manual close/STOP/cap\nreturn [{json:{...j,continue:!stop,leadState:L.state}}];"
+      },
+      "id": "3154d4bd-dc90-4808-b874-29d8d21642e5",
+      "name": "Stop Check 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.continue}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "f8ff577f-6062-4ade-bb39-6eb599490910",
+      "name": "Still Open? (2)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.from}}",
+        "message": "=Last note from {{$json.business}}. We'd love to help whenever you're ready: {{$json.bookingLink}} or call {{$json.bizPhone}}.",
+        "options": {}
+      },
+      "id": "424e4f7d-de87-49b3-b1aa-e373603c2612",
+      "name": "SMS 3 \u2014 Final",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$('Stop Check 2').first().json;const sd=$getWorkflowStaticData('global');sd.leads[j.from].sent=3;sd.leads[j.from].state='unresponsive';return [{json:{...j,final:'unresponsive'}}];"
+      },
+      "id": "eab51774-97bf-4270-aa35-eb41a45609cd",
+      "name": "Mark Unresponsive",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "missed-call-inbound-sms",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "75f8e49d-49f6-4614-b268-fce11409dfa4",
+      "name": "Twilio Inbound SMS Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ],
+      "webhookId": "2cd7daf1-cd8c-46ac-affe-bf1ed85f31f1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG={business:'Desert Flow Plumbing',bizPhone:'(520) 555-0142',bookingLink:'https://example.com/book',ownerPhone:'+15205550199',blocklist:['+15205550111']};\nconst b=$input.first().json.body||{};const from=b.From||'';const text=(b.Body||'').trim();const kw=text.toUpperCase();\nconst sd=$getWorkflowStaticData('global');sd.leads=sd.leads||{};sd.suppressed=sd.suppressed||{};\nlet kind='reply',reply=null;\nif(['STOP','STOPALL','UNSUBSCRIBE','CANCEL','END','QUIT'].includes(kw)){kind='stop';sd.suppressed[from]=Date.now();reply=`You're unsubscribed from ${CFG.business}. No more messages.`;}\nelse if(kw==='START'||kw==='UNSTOP'){kind='start';delete sd.suppressed[from];reply=`You're re-subscribed to ${CFG.business}. Reply STOP to opt out.`;}\nelse if(kw==='HELP'){kind='help';reply=`${CFG.business}: call ${CFG.bizPhone}. Reply STOP to opt out.`;}\nelse if(/no heat|no ac|not cooling|leak|flood|burst|gas|sewage|emergency/i.test(text)){kind='emergency';reply=\"We're on it, a tech will call you shortly.\";}\nif(sd.leads[from]&&kind!=='help')sd.leads[from].state=kind==='stop'?'opted-out':'replied'; // any reply stops sequence\nreturn [{json:{from,text,kind,reply,urgent:kind==='emergency',...CFG}}];"
+      },
+      "id": "67869273-5d5e-4cb0-a70e-10e0e1f107c1",
+      "name": "Classify Reply (STOP/START/HELP/Emergency)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.reply}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "bca27f24-ba26-401a-9dd3-5ce43d583947",
+      "name": "Needs Auto-Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        520,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$json.from}}",
+        "message": "={{$json.reply}}",
+        "options": {}
+      },
+      "id": "ab5727f2-b42e-4c34-a198-40d9e020ad38",
+      "name": "Send Auto-Reply",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        780,
+        320
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "={{$env.TWILIO_FROM || '+15205550100'}}",
+        "to": "={{$('Classify Reply (STOP/START/HELP/Emergency)').item.json.ownerPhone}}",
+        "message": "={{$('Classify Reply (STOP/START/HELP/Emergency)').item.json.urgent?'\ud83d\udea8 URGENT ':''}}Lead {{$('Classify Reply (STOP/START/HELP/Emergency)').item.json.from}} replied ({{$('Classify Reply (STOP/START/HELP/Emergency)').item.json.kind}}): {{$('Classify Reply (STOP/START/HELP/Emergency)').item.json.text}}",
+        "options": {}
+      },
+      "id": "b2dbd0ea-ab22-47d7-8fc3-646fda045e64",
+      "name": "Forward Reply to Owner",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        320
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_TWILIO_CRED_ID",
+          "name": "Twilio account (placeholder)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "missed-call-close",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "804c5d95-a3d6-420f-9fb2-2c5738ec5fb4",
+      "name": "Lead Closed Webhook (booked/answered callback/manual)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        560
+      ],
+      "webhookId": "80d66c74-7b05-4f68-8ab8-5d5b67ac317c"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b=$input.first().json.body||{};const sd=$getWorkflowStaticData('global');sd.leads=sd.leads||{};\nif(sd.leads[b.phone])sd.leads[b.phone].state=b.reason||'booked';return [{json:{phone:b.phone,state:b.reason||'booked'}}];"
+      },
+      "id": "3a61868f-c4cf-4eee-9659-6f74db82b311",
+      "name": "Mark Lead Closed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        560
+      ]
+    }
+  ],
+  "connections": {
+    "Twilio Call Status Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter Missed + Dedupe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Missed + Dedupe": {
+      "main": [
+        [
+          {
+            "node": "Proceed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proceed?": {
+      "main": [
+        [
+          {
+            "node": "SMS 1 \u2014 Instant Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS 1 \u2014 Instant Text": {
+      "main": [
+        [
+          {
+            "node": "Owner Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner Alert": {
+      "main": [
+        [
+          {
+            "node": "Calc +2h (quiet hours 8PM-8AM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc +2h (quiet hours 8PM-8AM)": {
+      "main": [
+        [
+          {
+            "node": "Wait for SMS 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for SMS 2": {
+      "main": [
+        [
+          {
+            "node": "Stop Check 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Check 1": {
+      "main": [
+        [
+          {
+            "node": "Still Open? (1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still Open? (1)": {
+      "main": [
+        [
+          {
+            "node": "SMS 2 \u2014 Check-in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS 2 \u2014 Check-in": {
+      "main": [
+        [
+          {
+            "node": "Calc +24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc +24h": {
+      "main": [
+        [
+          {
+            "node": "Wait for SMS 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for SMS 3": {
+      "main": [
+        [
+          {
+            "node": "Stop Check 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Check 2": {
+      "main": [
+        [
+          {
+            "node": "Still Open? (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still Open? (2)": {
+      "main": [
+        [
+          {
+            "node": "SMS 3 \u2014 Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS 3 \u2014 Final": {
+      "main": [
+        [
+          {
+            "node": "Mark Unresponsive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio Inbound SMS Webhook": {
+      "main": [
+        [
+          {
+            "node": "Classify Reply (STOP/START/HELP/Emergency)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Reply (STOP/START/HELP/Emergency)": {
+      "main": [
+        [
+          {
+            "node": "Needs Auto-Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Auto-Reply?": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Forward Reply to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Auto-Reply": {
+      "main": [
+        [
+          {
+            "node": "Forward Reply to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Closed Webhook (booked/answered callback/manual)": {
+      "main": [
+        [
+          {
+            "node": "Mark Lead Closed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Phoenix"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}
