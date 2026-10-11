@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Receptionist Demo · Desert Flow Plumbing</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#e2e8f0}
+header{padding:20px 24px;background:#111c33;border-bottom:1px solid #1e293b}h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:#94a3b8;font-size:14px}
+.wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;padding:20px;max-width:1200px;margin:auto}@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.card{background:#111c33;border:1px solid #1e293b;border-radius:14px;padding:16px}.card h2{margin:0 0 10px;font-size:16px;color:#93c5fd}
+.callbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:14px}.dot{width:10px;height:10px;border-radius:50%;background:#64748b}.dot.live{background:#22c55e;animation:p 1.2s infinite}@keyframes p{50%{opacity:.3}}
+#log{height:430px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px;background:#0b1325;border-radius:10px}
+.m{max-width:80%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.4}.ai{background:#1d4ed8;align-self:flex-start}.caller{background:#334155;align-self:flex-end}.sys{align-self:center;color:#94a3b8;font-size:12px;font-style:italic}
+.m b{display:block;font-size:11px;opacity:.75;margin-bottom:2px}
+form{display:flex;gap:8px;margin-top:10px}input{flex:1;padding:10px;border-radius:8px;border:1px solid #334155;background:#0b1325;color:#fff}
+button{padding:10px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}button.alt{background:#334155}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.quick button{font-size:12px;padding:6px 10px;background:#1e293b}
+.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-size:13px}.slot{padding:8px;border-radius:8px;background:#0b1325;border:1px solid #1e293b}.slot.taken{opacity:.4;text-decoration:line-through}.slot.booked{background:#14532d;border-color:#22c55e}
+.kv{font-size:14px}.kv div{display:flex;justify-content:space-between;border-bottom:1px dashed #1e293b;padding:6px 0}.kv span:first-child{color:#94a3b8}
+#summary{display:none;border-color:#22c55e}.badge{display:inline-block;background:#dc2626;color:#fff;font-size:11px;padding:2px 8px;border-radius:99px}
+.note{font-size:12px;color:#64748b;margin-top:8px}
+</style></head><body><div style="background:#fff3cd;color:#664d03;border:1px solid #ffecb5;padding:8px 12px;text-align:center;font:14px/1.4 system-ui,sans-serif">Example demo, sample business, not a real client</div>
+<header><h1>📞 24/7 Phone Answering — live call simulator</h1><p>Sample business: <b>Desert Flow Plumbing</b> (Tucson, AZ). Fully simulated in your browser — no real calls, accounts, or data sent.</p></header>
+<div class="wrap">
+<div class="card"><div class="callbar"><span class="dot" id="dot"></span><span id="status">Idle — press “Start call”</span></div>
+<div id="log"></div>
+<form id="f"><input id="in" placeholder="Type what the caller says…" autocomplete="off" disabled><button id="send" disabled>Say</button><button type="button" id="start">Start call</button></form>
+<div class="quick" id="quick"></div>
+<div class="note">Try: “Do you charge for estimates?”, “What areas do you serve?”, “Are you open weekends?”, or describe a problem to book.</div></div>
+<div>
+<div class="card"><h2>📅 Calendar (fake) — next openings</h2><div class="slots" id="slots"></div></div><br>
+<div class="card"><h2>Captured so far</h2><div class="kv"><div><span>Name</span><span id="cName">—</span></div><div><span>Phone</span><span id="cPhone">—</span></div><div><span>Issue</span><span id="cIssue">—</span></div><div><span>Address</span><span id="cAddr">—</span></div><div><span>Appointment</span><span id="cSlot">—</span></div></div></div><br>
+<div class="card" id="summary"><h2>📲 Owner summary (texted to owner)</h2><div id="sumBody" class="kv"></div></div>
+</div></div>
+<script>
+const BIZ="Desert Flow Plumbing";
+const FAQ=[
+ [/estimate|quote|charge|price|cost|fee/i,"We offer free estimates on replacements. For repairs there's an $89 service call fee that's waived if you go ahead with the repair."],
+ [/area|serve|where|location|marana|oro valley|vail/i,"We serve Tucson, Oro Valley, Marana, Vail, Sahuarita, and Catalina Foothills."],
+ [/hour|open|weekend|saturday|sunday|close/i,"Our office is open Monday–Friday 7am–6pm and Saturday 8am–2pm. We have 24/7 emergency service for active leaks."],
+ [/licens|insur|bonded/i,"Yes — we're licensed, bonded, and insured in Arizona (ROC license on file)."],
+ [/water heater|tankless/i,null],[/warrant|guarantee/i,"All repairs carry a 1-year parts and labor warranty."]];
+const slots=[["Mon 10/12","8:00–10:00 AM",1],["Mon 10/12","1:00–3:00 PM",0],["Tue 10/13","8:00–10:00 AM",0],["Tue 10/13","10:00 AM–12:00 PM",1],["Tue 10/13","3:00–5:00 PM",0],["Wed 10/14","9:00–11:00 AM",0]];
+let st="idle",lead={},offered=[],emergency=false;
+const $=id=>document.getElementById(id),log=$("log");
+function renderSlots(){$("slots").innerHTML=slots.map((s,i)=>`<div class="slot ${s[2]==1?'taken':''} ${s[2]==2?'booked':''}">${s[0]}<br><b>${s[1]}</b></div>`).join("")}
+function add(who,t){const d=document.createElement("div");d.className="m "+who;d.innerHTML=who=="sys"?t:`<b>${who=="ai"?"Automated assistant":"Caller"}</b>${t}`;log.appendChild(d);log.scrollTop=1e9}
+function say(t,q){setTimeout(()=>{add("ai",t);setQuick(q||[])},550)}
+function setQuick(q){$("quick").innerHTML="";q.forEach(x=>{const b=document.createElement("button");b.type="button";b.textContent=x;b.onclick=()=>handle(x);$("quick").appendChild(b)})}
+function set(k,v){lead[k]=v;$({name:"cName",phone:"cPhone",issue:"cIssue",addr:"cAddr",slot:"cSlot"}[k]).textContent=v}
+function faq(t){for(const[r,a]of FAQ){if(r.test(t)&&a)return a}return null}
+function handle(t){t=t.trim();if(!t||st=="idle"||st=="done")return;add("caller",t);$("in").value="";
+ const f=faq(t);
+ if(st=="greet"){if(f&&!/leak|clog|broke|burst|water heater|drain|toilet|no hot/i.test(t)){say(f+" Is there anything I can help you schedule today?",["Yes, my kitchen sink is leaking","No, that's all"]);return}
+  if(/^no|that's all|bye/i.test(t)){say("No problem! Thanks for calling "+BIZ+". Have a great day.");end(false);return}
+  set("issue",t);emergency=/burst|flood|gushing|emergency|sewage/i.test(t);st="name";
+  say((emergency?"That sounds urgent — I'm flagging this as an emergency for our on-call tech. ":"Sorry to hear that — we can definitely help. ")+"Can I get your first and last name?",["Maria Lopez"]);return}
+ if(f&&st!="name"){say(f+" Now, back to booking —");}
+ if(st=="name"){set("name",t.replace(/^(it's|this is|my name is)\s*/i,""));st="phone";say(`Thanks, ${lead.name.split(" ")[0]}. What's the best callback number?`,["520-555-0187"]);return}
+ if(st=="phone"){const d=t.replace(/\D/g,"");if(d.length<10){say("Sorry, I need a 10-digit number — could you repeat it?");return}set("phone",`(${d.slice(-10,-7)}) ${d.slice(-7,-4)}-${d.slice(-4)}`);st="addr";say("Got it. And the service address?",["4120 E Fort Lowell Rd, Tucson"]);return}
+ if(st=="addr"){set("addr",t);st="slot";offered=slots.map((s,i)=>i).filter(i=>slots[i][2]==0).slice(0,3);
+  say((emergency?"Our on-call tech will call you within 15 minutes. I can also hold the earliest scheduled visit: ":"Here are the next openings: ")+offered.map((i,n)=>`(${n+1}) ${slots[i][0]} ${slots[i][1]}`).join(", ")+". Which works best?",offered.map((i,n)=>`Option ${n+1}`));return}
+ if(st=="slot"){let n=(t.match(/[123]/)||[])[0];if(!n){offered.forEach((i,k)=>{if(t.toLowerCase().includes(slots[i][0].slice(0,3).toLowerCase()))n=k+1})}
+  if(!n){say("Sorry, which option — 1, 2, or 3?",["Option 1","Option 2","Option 3"]);return}
+  const i=offered[n-1];slots[i][2]=2;renderSlots();set("slot",slots[i][0]+", "+slots[i][1]);st="done";
+  say(`You're booked for ${lead.slot}. You'll get a confirmation text at ${lead.phone}, and the tech will text when on the way. Anything else?`);setTimeout(()=>end(true),1400);return}
+}
+function end(booked){st="done";$("dot").classList.remove("live");$("status").textContent="Call ended";$("in").disabled=$("send").disabled=true;add("sys","— call ended · "+new Date().toLocaleTimeString()+" —");
+ if(!booked)return;$("summary").style.display="block";
+ $("sumBody").innerHTML=(emergency?'<p><span class="badge">EMERGENCY</span> On-call tech paged</p>':'')+`<div><span>Caller</span><span>${lead.name}</span></div><div><span>Phone</span><span>${lead.phone}</span></div><div><span>Issue</span><span>${lead.issue}</span></div><div><span>Address</span><span>${lead.addr}</span></div><div><span>Booked</span><span>${lead.slot}</span></div><div><span>Source</span><span>24/7 Phone Answering (after-hours)</span></div>`}
+$("start").onclick=()=>{log.innerHTML="";lead={};emergency=false;slots.forEach(s=>{if(s[2]==2)s[2]=0});renderSlots();["cName","cPhone","cIssue","cAddr","cSlot"].forEach(i=>$(i).textContent="—");$("summary").style.display="none";
+ st="greet";$("dot").classList.add("live");$("status").textContent="Live call · inbound (520) 555-0187";$("in").disabled=$("send").disabled=false;add("sys","— incoming call answered by automated assistant —");
+ say(`Thanks for calling ${BIZ}, you've reached our automated assistant. Calls may be recorded. How can I help you today?`,["My kitchen sink is leaking under the cabinet","Do you charge for estimates?","A pipe burst and it's flooding!"])};
+$("f").onsubmit=e=>{e.preventDefault();handle($("in").value)};
+renderSlots();
+// auto-demo via ?auto=1 (used for screenshots)
+if(location.search.includes("auto")){$("start").click();const s=["Do you charge for estimates?","My water heater is leaking from the bottom","Maria Lopez","520-555-0187","4120 E Fort Lowell Rd, Tucson","Option 1"];s.forEach((x,i)=>setTimeout(()=>handle(x),900*(i+1)))}
+</script></body></html>
