@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website AI Chat Agent Demo · Catalina Peak Roofing (example business)</title>
+<meta name="description" content="Interactive demo: a website AI chat agent that answers roofing questions, qualifies the job, gives a ballpark range and books an inspection, while the owner gets a lead card in real time.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#demo">Skip to demo</a>
+<div class="banner" role="note">Demo only. Catalina Peak Roofing is a fictional example business. Prices, reviews and numbers on this page are example content.</div>
+<header class="top">
+  <div class="wrap row">
+    <a class="logo" href="#"><span class="mark" aria-hidden="true">▲</span> Catalina Peak <small>Roofing</small></a>
+    <button class="toggle" aria-expanded="false" aria-controls="menu" aria-label="Open menu">☰</button>
+    <nav id="menu" aria-label="Main">
+      <a href="#demo">Live demo</a><a href="#how">How it works</a><a href="#results">What the owner gets</a><a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Interactive demo · website AI chat agent</p>
+      <h1>Your website answers, qualifies and books roof jobs at 11&nbsp;pm.</h1>
+      <p class="lead">Try it like a homeowner would. Ask about a leak, monsoon damage or a full replacement. The assistant asks the right questions, gives a ballpark range, books an inspection, and drops a ready-to-call lead card on the owner's phone.</p>
+      <div class="cta"><a class="btn primary" href="#demo">Start the chat</a><a class="btn ghost" href="#how">See how it works</a></div>
+      <ul class="stats" aria-label="Example figures">
+        <li><b>24/7</b><span>answers on the site</span></li>
+        <li><b>&lt;5 sec</b><span>first reply (example)</span></li>
+        <li><b>4 questions</b><span>to qualify a job</span></li>
+      </ul>
+    </div>
+    <div class="hero-card" aria-hidden="true">
+      <div class="roof"></div>
+      <p>"Is this storm damage covered? Can someone come out this week?"</p>
+      <span>Typical after-hours question (example)</span>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <h2>Try the chat agent</h2>
+    <p class="sub">Tap a suggestion or type your own message. Everything runs in your browser; nothing is sent anywhere.</p>
+    <div class="demo-grid">
+      <div class="chat" aria-label="Chat with the example roofing assistant">
+        <div class="chat-head">
+          <span class="avatar" aria-hidden="true">CP</span>
+          <div><b>Catalina Peak Assistant</b><small><span class="dot"></span> Online now · example</small></div>
+          <button class="reset" id="reset" type="button">Restart</button>
+        </div>
+        <div class="log" id="log" role="log" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form class="composer" id="composer" autocomplete="off">
+          <label for="msg" class="sr">Type a message</label>
+          <input id="msg" placeholder="Type a message…" maxlength="200">
+          <button type="submit" aria-label="Send">➤</button>
+        </form>
+      </div>
+      <aside class="owner" aria-label="What the owner sees">
+        <div class="phone">
+          <div class="phone-top"><span>Owner's phone</span><span id="clock">9:42 PM</span></div>
+          <div class="lead-card" id="card">
+            <p class="tag" id="status">Waiting for a visitor…</p>
+            <dl>
+              <div><dt>Need</dt><dd id="f-need">—</dd></div>
+              <div><dt>Roof type</dt><dd id="f-type">—</dd></div>
+              <div><dt>Size</dt><dd id="f-size">—</dd></div>
+              <div><dt>Urgency</dt><dd id="f-urg">—</dd></div>
+              <div><dt>Ballpark</dt><dd id="f-est">—</dd></div>
+              <div><dt>Name</dt><dd id="f-name">—</dd></div>
+              <div><dt>Booked</dt><dd id="f-book">—</dd></div>
+            </dl>
+            <div class="score"><span>Lead score</span><div class="bar"><i id="bar"></i></div><b id="score">0</b></div>
+          </div>
+          <p class="phone-note">The owner gets this as a text the moment the visitor finishes. Example data.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li><b>Answers instantly</b><p>Trained on your services, service area, hours and policies, so it answers the way your office would.</p></li>
+      <li><b>Qualifies the job</b><p>Asks what's wrong, the roof type, the size and how urgent it is. No more "call me back" with zero details.</p></li>
+      <li><b>Gives a safe ballpark</b><p>Shares a range you set, always framed as "final price after inspection," so nobody gets surprised.</p></li>
+      <li><b>Books and hands off</b><p>Offers open inspection slots, then texts you a lead card with everything you need to call back.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="results" class="results">
+  <div class="wrap two">
+    <div>
+      <h2>What the owner gets</h2>
+      <ul class="checks">
+        <li>A text with the visitor's name, need, roof details and chosen time</li>
+        <li>Emergency leaks flagged to the top</li>
+        <li>A daily summary of every chat, booked or not</li>
+        <li>Answers you can edit anytime, with no tech skills needed</li>
+      </ul>
+    </div>
+    <blockquote class="quote">
+      <p>"I used to find three website messages every morning with no phone number. Now they come in with a time already picked."</p>
+      <cite>Example quote, not a real customer</cite>
+    </blockquote>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <details><summary>Will it give prices I don't agree with?</summary><p>No. It only shares the ranges you approve, and always says the final price comes after an inspection.</p></details>
+    <details><summary>What if someone has an emergency leak?</summary><p>It flags the chat as urgent, shares your emergency line and texts you right away.</p></details>
+    <details><summary>Does it work on my current website?</summary><p>Yes. It's a small chat bubble that can be added to most websites in under a day.</p></details>
+    <details><summary>What does it cost?</summary><p>$500 setup plus $99/month, which covers maintenance and updates to its answers.</p></details>
+  </div>
+</section>
+</main>
+
+<footer class="foot"><div class="wrap">Portfolio demo built by Quinten Walters · Tucson, AZ · Catalina Peak Roofing, its reviews and its prices are fictional example content.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
