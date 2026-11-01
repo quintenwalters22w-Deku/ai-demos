@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Are Missed Calls Costing You? Free Calculator | Quinten Walters</title>
+<meta name="description" content="Free calculator for Tucson trades: estimate the revenue you may be losing to unanswered calls. No sign-up.">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="calc.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top">Quinten <span>Walters</span></a>
+  <button class="navtoggle" aria-label="Open menu" aria-expanded="false" aria-controls="sitenav" onclick="var n=document.getElementById('sitenav');var o=n.classList.toggle('open');this.setAttribute('aria-expanded',o);this.textContent=o?'✕':'☰'">☰</button>
+  <nav id="sitenav"><a href="#calculator">Calculator</a><a href="#how">How it's figured</a><a href="#fix">The fix</a><a class="btn btn-primary btn-sm" href="tel:+15204740291">Call 520-474-0291</a></nav>
+</div></header>
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">Free tool · no sign-up · nothing you type leaves this page</div>
+  <h1>What are missed calls <em>costing you?</em></h1>
+  <p class="sub">Put in your own numbers and see a rough estimate of the revenue that goes unanswered every month and every year.</p>
+</div></section>
+
+<section id="calculator"><div class="wrap">
+  <div class="kicker">Calculator</div>
+  <h2>Your numbers</h2>
+  <div class="calc">
+    <form id="calcForm" class="card" onsubmit="return false" novalidate>
+      <span class="exnote">The numbers already filled in are example values. Replace them with yours.</span>
+      <div class="field"><label for="calls">Calls per week</label>
+        <input id="calls" type="number" inputmode="decimal" min="0" step="1" value="40">
+        <span class="hint">Example value. Count all inbound calls to your business line.</span></div>
+      <div class="field"><label for="miss">% of calls that go unanswered</label>
+        <div class="inrow"><input id="miss" type="number" inputmode="decimal" min="0" max="100" step="1" value="27"><span>%</span></div>
+        <span class="hint">Example value: 27% is Invoca's figure for home-services calls (see sources).</span></div>
+      <div class="field"><label for="close">% of answered callers who'd become paying jobs</label>
+        <div class="inrow"><input id="close" type="number" inputmode="decimal" min="0" max="100" step="1" value="46"><span>%</span></div>
+        <span class="hint">Example value: 46% is Invoca's 2025 home-services on-call conversion rate (see sources).</span></div>
+      <div class="field"><label for="job">Average job value</label>
+        <div class="inrow"><span>$</span><input id="job" type="number" inputmode="decimal" min="0" step="10" value="350"></div>
+        <span class="hint">Example value only. Use your own average ticket.</span></div>
+      <div class="field"><label for="noback">% of missed callers who never call back</label>
+        <div class="inrow"><input id="noback" type="number" inputmode="decimal" min="0" max="100" step="1" value="100"><span>%</span></div>
+        <span class="hint">Example value. 100% matches the cited formula exactly. CallRail reports up to 85% never call back; lower it if some of yours do.</span></div>
+    </form>
+    <div class="result" aria-live="polite">
+      <div class="lbl" style="margin-top:0">Estimated lost revenue per year</div>
+      <div class="big" id="outYear">$0</div>
+      <div class="lbl">Per month</div>
+      <div class="mid" id="outMonth">$0</div>
+      <div class="detail" id="outDetail"></div>
+      <p class="small">An estimate, not a guarantee. It's only as good as the numbers you put in.</p>
+      <a class="btn btn-primary" href="#fix" style="margin-top:6px">See the fix →</a>
+    </div>
+  </div>
+</div></section>
+
+<section id="how" class="alt"><div class="wrap">
+  <div class="kicker">How it's figured</div>
+  <h2>The formula, in the open</h2>
+  <p class="lead">Same approach as Keystone's public answering-services index, which models annual lost revenue per trade as:</p>
+  <div class="formula">calls per week × miss rate × 46% × average job value × 52 weeks</div>
+  <p class="lead">This calculator lets you edit every input, including the 46% (shown as "% who'd become paying jobs"). The extra "% who never call back" field is set to 100% by default, which leaves the formula unchanged. Monthly = yearly ÷ 12.</p>
+  <h3>Sources</h3>
+  <ul class="src">
+    <li>Keystone, answering-services research (formula; Invoca 27% unanswered and 46% conversion figures): <a href="https://keystoneapp.io/research/answering-services" rel="noopener">keystoneapp.io/research/answering-services</a></li>
+    <li>CallRail (Jan 2025, 1.1M conversations): up to 85% of unanswered callers never call back, as reported in this guide: <a href="https://automateline.com/guides/missed-call-text-back-for-hvac-companies" rel="noopener">automateline.com/guides/missed-call-text-back-for-hvac-companies</a></li>
+  </ul>
+</div></section>
+
+<section id="fix" class="final"><div class="wrap">
+  <div class="kicker">The fix</div>
+  <h2>Every missed call gets a text back in seconds.</h2>
+  <p>When you can't pick up, the caller gets a text from your business right away, so they're talking to you rather than calling the next company. I set it up and keep it running for Tucson trades. It's $500 to set up and $99 a month. For my first 3 founding clients, setup is $250 (plus $99 a month). Texting and phone-number costs are paid separately.</p>
+  <div class="ctas"><a class="btn btn-primary" href="tel:+15204740291">Call 520-474-0291</a><a class="btn btn-secondary" href="sms:+15204740291">Text me</a><a class="btn btn-secondary" href="mailto:QuintenWalters22@outlook.com?subject=Missed-call%20calculator">Email me</a></div>
+  <p class="small">QuintenWalters22@outlook.com · No pressure. If it won't pay off for your shop, I'll tell you.</p>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <div class="cols">
+    <div><strong>Quinten Walters</strong><br>Automations and websites for Tucson trades businesses<br>Serving Tucson and nearby areas</div>
+    <div>Call/text: <a href="tel:+15204740291">520-474-0291</a><br>Email: <a href="mailto:QuintenWalters22@outlook.com">QuintenWalters22@outlook.com</a></div>
+    <div>This page has no tracking and no cookies. Your numbers stay in your browser.</div>
+  </div>
+  <div class="fine">Texts are sent only to people who contacted you or did business with you. Reply STOP to opt out at any time.<br>© 2026 Quinten Walters</div>
+</div></footer>
+<div class="mbar"><a class="btn btn-primary" href="tel:+15204740291">Call</a><a class="btn btn-secondary" href="sms:+15204740291">Text</a></div>
+<script src="calc.js"></script>
+</body>
+</html>
