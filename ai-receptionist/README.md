@@ -13,7 +13,7 @@ Demo: open `index.html` in any browser (no server, no accounts). Add `?auto=1` t
 Business hours, services + price rules, service area, FAQ answers, emergency policy and on-call number, calendar/FSM access (or a booking link), owner alert phone/email, greeting tone/voice choice, call-forwarding setup on their phone line, and texting registration info (legal name, EIN, address).
 
 ## Pricing note
-Priced like every service: $500 flat + $99/mo retainer — but per-minute voice costs may exceed $99/mo for busy shops. Decide on a minute cap or a separate tier before selling (open question).
+Priced like every service: starting at $1,000 setup + $99/mo, always negotiable — but per-minute voice costs may exceed $99/mo for busy shops. Decide on a minute cap or a separate tier before selling (open question).
 
 ## Customer-facing wording (aligned to Annie's ink)
 Say "Automations" / outcome language ("the 9pm call gets caught and booked"). No tool brands (no Vapi/Retell/n8n/Twilio) in customer talk. If asked "Is this AI?": "It's a shop-floor Lead Recovery install. You keep the keys."
