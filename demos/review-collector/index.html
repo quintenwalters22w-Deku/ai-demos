@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rillito Roofing — Review Collector (Demo)</title>
+<style>
+  :root {
+    --bg: #0c1222; --card: #162033; --text: #e8eef8; --muted: #8b9bb4;
+    --accent: #fbbf24; --ok: #34d399; --danger: #f87171; --border: #243247; --blue: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5;
+  }
+  .banner {
+    background: #78350f; color: #fef3c7; text-align: center; padding: 0.45rem 1rem;
+    font-size: 0.85rem; font-weight: 600;
+  }
+  header {
+    max-width: 1000px; margin: 0 auto; padding: 1.25rem; display: flex;
+    justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;
+  }
+  .logo { font-weight: 800; font-size: 1.2rem; }
+  .logo span { color: var(--accent); }
+  nav { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  nav button {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 0.4rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+  }
+  nav button.active, nav button:hover { border-color: var(--accent); color: var(--accent); }
+  main { max-width: 1000px; margin: 0 auto; padding: 0 1.25rem 3rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem;
+  }
+  h1 { margin: 0 0 0.35rem; font-size: 1.5rem; }
+  h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+  .muted { color: var(--muted); }
+  .stars { display: flex; gap: 0.35rem; margin: 1rem 0; }
+  .star {
+    width: 48px; height: 48px; border-radius: 10px; border: 1px solid var(--border);
+    background: #0c1222; color: var(--muted); font-size: 1.5rem; cursor: pointer;
+  }
+  .star.on { color: var(--accent); border-color: var(--accent); background: #1f1808; }
+  .star:hover { transform: scale(1.05); }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0.7rem 0 0.3rem; }
+  input, textarea {
+    width: 100%; padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
+    background: #0c1222; color: var(--text); font: inherit;
+  }
+  .actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+  button.primary {
+    background: var(--accent); color: #111; border: none; padding: 0.65rem 1.1rem;
+    border-radius: 8px; font-weight: 700; cursor: pointer;
+  }
+  button.ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 0.65rem 1.1rem; border-radius: 8px; cursor: pointer;
+  }
+  button.ok { background: var(--ok); color: #052e1a; border: none; padding: 0.4rem 0.7rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  button.danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 0.4rem 0.7rem; border-radius: 6px; cursor: pointer; }
+  .path {
+    display: none; margin-top: 1rem; padding: 1rem; border-radius: 10px; border: 1px solid var(--border);
+  }
+  .path.show { display: block; }
+  .path.good { border-color: #065f46; background: #052e1a; }
+  .path.bad { border-color: #7f1d1d; background: #1f0a0a; }
+  .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; }
+  .testimonial {
+    background: #0c1222; border: 1px solid var(--border); border-radius: 12px; padding: 1rem;
+  }
+  .testimonial .who { font-weight: 700; margin-top: 0.5rem; font-size: 0.9rem; }
+  .testimonial .meta { color: var(--muted); font-size: 0.75rem; }
+  .photo-slot {
+    margin-top: 0.75rem; border: 1px dashed var(--border); border-radius: 8px; padding: 0.75rem;
+    color: var(--muted); font-size: 0.85rem; text-align: center;
+  }
+  .photo-slot.has { border-style: solid; border-color: var(--ok); color: var(--ok); }
+  .admin-row {
+    display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start;
+    padding: 0.85rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 99px;
+    font-weight: 700; text-transform: uppercase;
+  }
+  .badge.pending { background: #422006; color: var(--accent); }
+  .badge.approved { background: #052e1a; color: var(--ok); }
+  .badge.hidden { background: #1f0a0a; color: var(--danger); }
+  .badge.private { background: #1e3a5f; color: var(--blue); }
+  .stars-inline { color: var(--accent); letter-spacing: 1px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .toast {
+    display: none; background: #052e1a; border: 1px solid var(--ok); color: var(--ok);
+    padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem;
+  }
+  .toast.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="banner">Example demo, sample business — Rillito Roofing is a fictional Tucson shop. Reviews and photos are sample / example content.</div>
+  <header>
+    <div class="logo">Rillito <span>Roofing</span> · Reviews</div>
+    <nav>
+      <button type="button" class="active" data-view="rate">Leave a rating</button>
+      <button type="button" data-view="wall">Testimonial wall</button>
+      <button type="button" data-view="admin">Admin</button>
+    </nav>
+  </header>
+  <main>
+    <div id="toast" class="toast"></div>
+
+    <section class="view active" id="view-rate">
+      <div class="card">
+        <h1>How did we do?</h1>
+        <p class="muted">Example post-job survey for a Tucson roofing customer. 4–5 stars open a public review path; 1–3 stars open a private feedback form first.</p>
+        <div class="stars" id="star-row" role="group" aria-label="Star rating">
+          <button type="button" class="star" data-n="1" aria-label="1 star">★</button>
+          <button type="button" class="star" data-n="2" aria-label="2 stars">★</button>
+          <button type="button" class="star" data-n="3" aria-label="3 stars">★</button>
+          <button type="button" class="star" data-n="4" aria-label="4 stars">★</button>
+          <button type="button" class="star" data-n="5" aria-label="5 stars">★</button>
+        </div>
+        <p class="muted" id="rating-hint">Tap a star to continue.</p>
+
+        <div class="path good" id="path-public">
+          <h2>Thanks — share a public review?</h2>
+          <p class="muted">Happy customers (4–5★) are invited to leave a public testimonial. Demo only — nothing posts to Google.</p>
+          <label for="pub-name">Your name</label>
+          <input id="pub-name" placeholder="Sam Ortega" />
+          <label for="pub-job">Job (example)</label>
+          <input id="pub-job" placeholder="Tile roof repair — Midtown" />
+          <label for="pub-text">Your review</label>
+          <textarea id="pub-text" rows="3" placeholder="Crew showed up on time and cleaned the yard…"></textarea>
+          <label>Optional photo</label>
+          <div class="photo-slot" id="photo-slot">No photo yet — click “Add sample photo”</div>
+          <div class="actions">
+            <button type="button" class="ghost" id="add-photo">Add sample photo</button>
+            <button type="button" class="primary" id="submit-public">Submit public review</button>
+          </div>
+        </div>
+
+        <div class="path bad" id="path-private">
+          <h2>We’re sorry — tell the owner privately</h2>
+          <p class="muted">1–3★ ratings go to a private feedback form so the shop can fix it before a public review. A public link is still offered below (demo).</p>
+          <label for="priv-name">Your name</label>
+          <input id="priv-name" placeholder="Alex Kim" />
+          <label for="priv-phone">Phone (for callback)</label>
+          <input id="priv-phone" placeholder="(520) 555-0144" />
+          <label for="priv-text">What went wrong?</label>
+          <textarea id="priv-text" rows="3" placeholder="Debris left in driveway…"></textarea>
+          <div class="actions">
+            <button type="button" class="primary" id="submit-private">Send private feedback</button>
+            <button type="button" class="ghost" id="still-public">Still leave a public review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-wall">
+      <div class="card">
+        <h2>Testimonial wall</h2>
+        <p class="muted">Only admin-approved public reviews appear here. Sample + newly submitted (demo).</p>
+        <div class="wall" id="wall"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-admin">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+          <h2 style="margin:0">Admin — approve / hide</h2>
+          <button type="button" class="ghost" id="reset-reviews">Reset sample data</button>
+        </div>
+        <div id="admin-list"></div>
+      </div>
+    </section>
+  </main>
+<script>
+(function () {
+  const KEY = 'rillito-reviews-v1';
+  let rating = 0;
+  let photoAdded = false;
+
+  const seed = [
+    { id: 'r1', type: 'public', stars: 5, name: 'Dana M.', job: 'Flat roof coating — Rita Ranch', text: 'Finished before monsoon hit. Yard was clean. (Example review)', photo: true, status: 'approved', when: '2026-11-02' },
+    { id: 'r2', type: 'public', stars: 4, name: 'Chris V.', job: 'Shingle replace — Flowing Wells', text: 'Solid work. One follow-up for a drip edge. (Example)', photo: false, status: 'approved', when: '2026-10-28' },
+    { id: 'r3', type: 'public', stars: 5, name: 'Pat L.', job: 'Leak fix — Catalina Foothills', text: 'Found the leak under the skylight fast. (Example)', photo: false, status: 'pending', when: '2026-11-08' },
+    { id: 'r4', type: 'private', stars: 2, name: 'Jordan Q.', job: 'Inspection', text: 'Tech was late and left nails in the driveway. Please call. (Example private feedback)', photo: false, status: 'private', when: '2026-11-07', phone: '(520) 555-0129' }
+  ];
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return structuredClone(seed);
+      return JSON.parse(raw);
+    } catch { return structuredClone(seed); }
+  }
+  function save(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+  let items = load();
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function starsStr(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function setRating(n) {
+    rating = n;
+    document.querySelectorAll('.star').forEach(btn => {
+      btn.classList.toggle('on', Number(btn.dataset.n) <= n);
+    });
+    document.getElementById('rating-hint').textContent = `You selected ${n} star${n === 1 ? '' : 's'}.`;
+    const pub = document.getElementById('path-public');
+    const priv = document.getElementById('path-private');
+    if (n >= 4) {
+      pub.classList.add('show');
+      priv.classList.remove('show');
+    } else if (n >= 1) {
+      priv.classList.add('show');
+      pub.classList.remove('show');
+    }
+  }
+
+  document.querySelectorAll('.star').forEach(btn => {
+    btn.addEventListener('click', () => setRating(Number(btn.dataset.n)));
+  });
+
+  document.getElementById('add-photo').addEventListener('click', () => {
+    photoAdded = true;
+    const slot = document.getElementById('photo-slot');
+    slot.classList.add('has');
+    slot.textContent = '📷 sample-roof-after.jpg (demo placeholder)';
+  });
+
+  document.getElementById('submit-public').addEventListener('click', () => {
+    const name = document.getElementById('pub-name').value.trim();
+    const job = document.getElementById('pub-job').value.trim();
+    const text = document.getElementById('pub-text').value.trim();
+    if (!name || !text) { toast('Name and review text are required.'); return; }
+    items.push({
+      id: 'u' + Date.now(), type: 'public', stars: rating || 5, name, job: job || 'General',
+      text, photo: photoAdded, status: 'pending', when: new Date().toISOString().slice(0, 10)
+    });
+    save(items);
+    toast('Public review submitted — pending admin approval. (Demo)');
+    document.getElementById('pub-name').value = '';
+    document.getElementById('pub-job').value = '';
+    document.getElementById('pub-text').value = '';
+    photoAdded = false;
+    document.getElementById('photo-slot').classList.remove('has');
+    document.getElementById('photo-slot').textContent = 'No photo yet — click “Add sample photo”';
+    renderWall();
+    renderAdmin();
+  });
+
+  document.getElementById('submit-private').addEventListener('click', () => {
+    const name = document.getElementById('priv-name').value.trim();
+    const phone = document.getElementById('priv-phone').value.trim();
+    const text = document.getElementById('priv-text').value.trim();
+    if (!name || !text) { toast('Name and feedback are required.'); return; }
+    items.push({
+      id: 'u' + Date.now(), type: 'private', stars: rating || 2, name, job: 'Private feedback',
+      text, phone, photo: false, status: 'private', when: new Date().toISOString().slice(0, 10)
+    });
+    save(items);
+    toast('Private feedback sent to the owner inbox. (Demo — not emailed)');
+    document.getElementById('priv-name').value = '';
+    document.getElementById('priv-phone').value = '';
+    document.getElementById('priv-text').value = '';
+    renderAdmin();
+  });
+
+  document.getElementById('still-public').addEventListener('click', () => {
+    document.getElementById('path-private').classList.remove('show');
+    document.getElementById('path-public').classList.add('show');
+    if (rating < 4) {
+      /* keep their low rating but allow public path */
+    }
+  });
+
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + btn.dataset.view).classList.add('active');
+      if (btn.dataset.view === 'wall') renderWall();
+      if (btn.dataset.view === 'admin') renderAdmin();
+    });
+  });
+
+  function renderWall() {
+    const wall = document.getElementById('wall');
+    const approved = items.filter(i => i.type === 'public' && i.status === 'approved');
+    if (!approved.length) {
+      wall.innerHTML = '<p class="muted">No approved testimonials yet.</p>';
+      return;
+    }
+    wall.innerHTML = approved.map(i => `
+      <div class="testimonial">
+        <div class="stars-inline">${starsStr(i.stars)}</div>
+        <p>${esc(i.text)}</p>
+        ${i.photo ? '<div class="photo-slot has">📷 photo attached (demo)</div>' : ''}
+        <div class="who">${esc(i.name)}</div>
+        <div class="meta">${esc(i.job)} · ${esc(i.when)} · example</div>
+      </div>`).join('');
+  }
+
+  function renderAdmin() {
+    const list = document.getElementById('admin-list');
+    if (!items.length) {
+      list.innerHTML = '<p class="muted">No reviews.</p>';
+      return;
+    }
+    list.innerHTML = items.slice().reverse().map(i => `
+      <div class="admin-row" data-id="${esc(i.id)}">
+        <div>
+          <span class="badge ${esc(i.status)}">${esc(i.status)}</span>
+          <span class="stars-inline" style="margin-left:0.5rem">${starsStr(i.stars)}</span>
+          <div style="margin-top:0.35rem"><strong>${esc(i.name)}</strong> · ${esc(i.type)} · ${esc(i.when)}</div>
+          <div class="muted" style="font-size:0.85rem">${esc(i.job)}${i.phone ? ' · ' + esc(i.phone) : ''}</div>
+          <div style="margin-top:0.35rem">${esc(i.text)}</div>
+        </div>
+        <div class="actions">
+          ${i.type === 'public' && i.status !== 'approved' ? `<button type="button" class="ok" data-act="approve">Approve</button>` : ''}
+          ${i.type === 'public' && i.status !== 'hidden' ? `<button type="button" class="danger" data-act="hide">Hide</button>` : ''}
+          ${i.type === 'public' && i.status === 'hidden' ? `<button type="button" class="ok" data-act="approve">Unhide / approve</button>` : ''}
+        </div>
+      </div>`).join('');
+    list.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.admin-row').dataset.id;
+        const item = items.find(x => x.id === id);
+        if (!item) return;
+        if (btn.dataset.act === 'approve') item.status = 'approved';
+        if (btn.dataset.act === 'hide') item.status = 'hidden';
+        save(items);
+        renderAdmin();
+        renderWall();
+        toast(btn.dataset.act === 'approve' ? 'Review approved for wall.' : 'Review hidden from wall.');
+      });
+    });
+  }
+
+  document.getElementById('reset-reviews').addEventListener('click', () => {
+    items = structuredClone(seed);
+    save(items);
+    renderAdmin();
+    renderWall();
+    toast('Sample data restored.');
+  });
+
+  renderWall();
+  renderAdmin();
+})();
+</script>
+</body>
+</html>

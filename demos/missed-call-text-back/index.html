@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Missed-Call Text-Back & Lead Follow-Up</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#e2e8f0;min-height:100vh}
+h1{text-align:center;margin:28px 12px 4px;font-size:26px}.sub{text-align:center;color:#cbd5e1;margin:0 12px 24px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:36px;justify-content:center;padding:0 16px 40px}
+.phone{width:330px;height:660px;background:#000;border-radius:44px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,.5);position:relative}
+.scr{background:#f2f2f7;border-radius:34px;height:100%;overflow:hidden;display:flex;flex-direction:column;color:#000}
+.top{background:#f9f9fb;border-bottom:1px solid #ddd;padding:30px 10px 8px;text-align:center;font-size:12px;color:#555}.top b{display:block;font-size:14px;color:#000}
+.av{width:38px;height:38px;border-radius:50%;background:#94a3b8;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-weight:700}
+.th{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.b{max-width:78%;padding:8px 12px;border-radius:18px;font-size:13.5px;line-height:1.35;opacity:0;transform:translateY(6px);transition:.4s}.b.show{opacity:1;transform:none}
+.in{background:#e5e5ea;align-self:flex-start}.out{background:#0a84ff;color:#fff;align-self:flex-end}.ts{align-self:center;font-size:11px;color:#8e8e93;margin-top:6px;opacity:0;transition:.4s}.ts.show{opacity:1}
+.ev{align-self:center;font-size:11px;background:#fff3cd;color:#7a5b00;padding:3px 10px;border-radius:10px;opacity:0;transition:.4s}.ev.show{opacity:1}
+.cap{text-align:center;margin-top:10px;font-size:13px;color:#cbd5e1}
+.ctl{text-align:center;margin-bottom:20px}button{background:#22c55e;border:0;color:#fff;padding:10px 18px;border-radius:99px;font-weight:600;cursor:pointer;margin:0 4px}button.g{background:#475569}
+.panel{max-width:900px;margin:0 auto 40px;background:rgba(15,23,42,.7);border-radius:16px;padding:18px 22px;font-size:14px}.panel h2{margin-top:0;font-size:17px}.panel li{margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid #334155;padding:6px;text-align:left}.timer-wrap{max-width:720px;margin:0 auto 22px;background:#fff;color:#0b0b0b;border-top:6px solid #E10600;border-radius:12px;padding:16px 20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.timer-label{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#E10600;margin:0 0 4px}
+.timer-val{font-size:42px;font-weight:900;letter-spacing:-.03em;line-height:1.1;margin:4px 0}
+.timer-val.under{color:#15803d}
+.timer-note{margin:6px 0 0;font-size:13px;color:#444}
+.timer-badge{display:none;align-self:center;font-size:11px;background:#dcfce7;color:#166534;padding:3px 10px;border-radius:10px;margin-top:2px}
+.timer-badge.show{display:block}
+.banner{background:#78350f;color:#fef3c7;text-align:center;padding:.45rem 1rem;font-size:.85rem;font-weight:600}
+</style></head><body>
+<div class="banner">Example demo, sample business — Desert Flow Plumbing is a fictional Tucson shop. Simulated texts. No real messages are sent.</div>
+<h1>Missed-Call Text-Back & Lead Follow-Up</h1><p class="sub">Simulated texts for Desert Flow Plumbing (sample). No real messages are sent.</p><div class="ctl"><button onclick="play()">▶ Replay sequence</button><button class="g" onclick="showAll()">Show all</button></div><div class="timer-wrap" id="reply-timer" role="status" aria-live="polite">
+<div class="timer-label">Demo timer · missed call to first text</div>
+<div class="timer-val" id="reply-timer-val">—</div>
+<div class="timer-note" id="reply-timer-note">This is a simulated replay. No real messages are sent. Watch the time from the missed call to the first text; the target is under 5 minutes.</div>
+</div>
+
+<div class="row"><div><div class="phone"><div class="scr"><div class="top"><div class="av">MC</div><b>(520) 555-0187</b>Caller's phone · Scenario A: no reply</div><div class="th"><div class="ev" data-timer-start>📵 Missed call · Tue 6:42 PM</div><div class="ts">Tue 6:43 PM</div><div class="b in" data-timer-stop>Hi, this is Desert Flow Plumbing. Sorry we missed your call! What can we help with? You can also book here: desertflow.example/book. Reply STOP to opt out.</div><div class="ev">⏸ +2h falls in quiet hours (8PM–8AM) → next day 8:00 AM</div><div class="ts">Wed 8:00 AM</div><div class="b in">Just checking in. Still need help with your plumbing? Grab a time here: desertflow.example/book</div><div class="ts">Thu 8:00 AM</div><div class="b in">Last note from Desert Flow Plumbing. We&#x27;d love to help whenever you&#x27;re ready: desertflow.example/book or call (520) 555-0142.</div><div class="ev">✔ Marked Unresponsive · added to weekly summary</div></div></div></div><div class="cap">Lead never replies → 3-message cap</div></div><div><div class="phone"><div class="scr"><div class="top"><div class="av">JR</div><b>(520) 555-0163</b>Caller's phone · Scenario B: replies</div><div class="th"><div class="ev" data-timer-start>📵 Missed call · Sat 10:15 AM</div><div class="ts">Sat 10:15 AM</div><div class="b in" data-timer-stop>Hi, this is Desert Flow Plumbing. Sorry we missed your call! What can we help with? You can also book here: desertflow.example/book. Reply STOP to opt out.</div><div class="b out">water heater is leaking all over the garage</div><div class="b in">We&#x27;re on it, a tech will call you shortly.</div><div class="ev">🛑 Sequence stopped — human takes over</div></div></div></div><div class="cap">Reply stops the sequence + urgent owner alert</div></div><div><div class="phone"><div class="scr"><div class="top"><div class="av">👤</div><b>Owner alerts</b>Owner's phone</div><div class="th"><div class="ts">Tue 6:43 PM</div><div class="b in">Missed call from (520) 555-0187 at 6:42 PM. Auto-text sent.</div><div class="ts">Sat 10:15 AM</div><div class="b in">Missed call from (520) 555-0163 at 10:15 AM. Auto-text sent.</div><div class="b in">🚨 URGENT Lead (520) 555-0163 replied (emergency): water heater is leaking all over the garage</div></div></div></div><div class="cap">What the owner sees</div></div><div><div class="phone"><div class="scr"><div class="top"><div class="av">KS</div><b>(520) 555-0121</b>Caller's phone · Scenario C: STOP</div><div class="th"><div class="ts">Mon 2:05 PM</div><div class="b in">Hi, this is Desert Flow Plumbing. Sorry we missed your call! What can we help with? You can also book here: desertflow.example/book. Reply STOP to opt out.</div><div class="b out">STOP</div><div class="b in">You&#x27;re unsubscribed from Desert Flow Plumbing. No more messages.</div><div class="ev">🔒 Suppressed (START re-subscribes)</div></div></div></div><div class="cap">STOP → one confirmation, permanent suppression</div></div></div><div class="panel"><h2>The after-hours call gets caught — not lost to whoever answers first</h2><table><tr><th>Step</th><th>Timing</th><th>Action</th></tr><tr><td>1</td><td>within 60 s</td><td>Instant text + owner alert (sent any time — it answers their own call)</td></tr><tr><td>2</td><td>+2 h (or 8 AM if quiet hours)</td><td>Check-in text</td></tr><tr><td>3</td><td>+24 h after #2</td><td>Final text</td></tr></table>
+<p><b>Stops immediately when:</b> they reply · they book · callback answered · STOP · owner marks handled · 3 messages sent. Quiet hours 8 PM–8 AM. HELP returns business info.</p><p>Typical setup is about 1–2 weeks (texting registration). You keep the keys.</p></div>
+<script>const els=()=>document.querySelectorAll('.b,.ts,.ev');let T=[];
+let timerStart=null,timerTick=null,timerStopped=false;
+function fmtMs(ms){
+  const s=Math.max(0,ms)/1000;
+  if(s<60) return s.toFixed(1)+' seconds';
+  const m=Math.floor(s/60), r=Math.floor(s%60);
+  return m+':'+String(r).padStart(2,'0');
+}
+function setTimer(val,note,done){
+  const v=document.getElementById('reply-timer-val');
+  const n=document.getElementById('reply-timer-note');
+  v.textContent=val;
+  v.classList.toggle('under',!!done);
+  if(note) n.textContent=note;
+}
+function resetTimer(){
+  if(timerTick) clearInterval(timerTick);
+  timerStart=null;timerTick=null;timerStopped=false;
+  setTimer('—','This is a simulated replay. No real messages are sent. Watch the time from the missed call to the first text; the target is under 5 minutes.',false);
+}
+function startTimer(){
+  if(timerStart) return;
+  timerStart=performance.now();
+  timerTick=setInterval(()=>{
+    if(!timerStart||timerStopped) return;
+    setTimer(fmtMs(performance.now()-timerStart),'Demo running — waiting for the first text.',false);
+  },50);
+}
+function stopTimer(){
+  if(!timerStart||timerStopped) return;
+  timerStopped=true;
+  if(timerTick) clearInterval(timerTick);
+  const ms=performance.now()-timerStart;
+  const under=ms<5*60*1000;
+  const note=under
+    ? 'First text in this demo: '+fmtMs(ms)+' after the missed call — well under 5 minutes. Simulated; no real messages were sent.'
+    : 'First text in this demo: '+fmtMs(ms)+' after the missed call. Simulated; no real messages were sent.';
+  setTimer(fmtMs(ms),note,under);
+  window.__replyTimerMs=ms;
+  window.__replyTimerUnder5=under;
+}
+function play(){
+  T.forEach(clearTimeout);T=[];resetTimer();
+  els().forEach(e=>e.classList.remove('show'));
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.querySelectorAll('.b,.ts,.ev').forEach((e,i)=>T.push(setTimeout(()=>{
+      e.classList.add('show');e.parentNode.scrollTop=1e9;
+      if(e.hasAttribute('data-timer-start')) startTimer();
+      if(e.hasAttribute('data-timer-stop')) stopTimer();
+    },700*(i+1))))
+  });
+}
+function showAll(){
+  T.forEach(clearTimeout);resetTimer();
+  els().forEach(e=>e.classList.add('show'));
+  setTimer('—','Full sequence shown at once. Press Replay to watch the demo timer from missed call to first text.',false);
+}
+window.resetReplyTimer=resetTimer;
+location.search.includes('static')?showAll():play();</script></body></html>

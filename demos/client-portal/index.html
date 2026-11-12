@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Saguaro Landscapes — Client Portal (Demo)</title>
+<style>
+  :root {
+    --bg: #0a1f14; --panel: #123024; --card: #1a3d2e; --text: #ecfdf5;
+    --muted: #86a899; --accent: #4ade80; --accent2: #86efac; --border: #245540;
+    --warn: #fbbf24; --blue: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5;
+  }
+  .banner {
+    background: #78350f; color: #fef3c7; text-align: center; padding: 0.45rem 1rem;
+    font-size: 0.85rem; font-weight: 600;
+  }
+  .shell { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 32px); }
+  @media (max-width: 760px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    .nav { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .nav button { flex: 1 1 auto; text-align: center; }
+  }
+  .sidebar {
+    background: var(--panel); border-right: 1px solid var(--border); padding: 1.25rem 1rem;
+  }
+  .brand { font-weight: 800; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  .brand span { color: var(--accent); }
+  .client { color: var(--muted); font-size: 0.8rem; margin-bottom: 1.25rem; }
+  .nav button {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text); padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer;
+    font-size: 0.9rem; margin-bottom: 0.25rem;
+  }
+  .nav button:hover, .nav button.active { background: var(--card); color: var(--accent2); }
+  .content { padding: 1.25rem; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.25rem; margin-bottom: 1rem;
+  }
+  h1 { margin: 0 0 0.35rem; font-size: 1.4rem; }
+  h2 { margin: 0 0 0.85rem; font-size: 1.1rem; }
+  .muted { color: var(--muted); }
+  .progress-bar {
+    height: 10px; background: #0a1f14; border-radius: 99px; overflow: hidden; margin: 0.75rem 0;
+  }
+  .progress-bar > i {
+    display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue));
+    width: 0; border-radius: 99px; transition: width 0.4s ease;
+  }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
+  .stat {
+    background: var(--card); border-radius: 10px; padding: 0.85rem; border: 1px solid var(--border);
+  }
+  .stat strong { display: block; font-size: 1.25rem; color: var(--accent2); }
+  .stat span { font-size: 0.78rem; color: var(--muted); }
+  .project {
+    display: flex; justify-content: space-between; gap: 1rem; align-items: center;
+    padding: 0.85rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 99px;
+    text-transform: uppercase;
+  }
+  .badge.active { background: #14532d; color: var(--accent); }
+  .badge.done { background: #0c4a6e; color: var(--blue); }
+  .badge.wait { background: #422006; color: var(--warn); }
+  .file-row, .msg, .approval {
+    padding: 0.85rem 0; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start; flex-wrap: wrap;
+  }
+  button.primary {
+    background: var(--accent); color: #052e16; border: none; padding: 0.55rem 0.95rem;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+  }
+  button.ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 0.55rem 0.95rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+  }
+  button.danger {
+    background: transparent; border: 1px solid #f87171; color: #f87171;
+    padding: 0.55rem 0.95rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+  }
+  .composer { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+  .composer input {
+    flex: 1; min-width: 180px; padding: 0.6rem 0.75rem; border-radius: 8px;
+    border: 1px solid var(--border); background: #0a1f14; color: var(--text); font: inherit;
+  }
+  .msg .bubble {
+    background: var(--card); border-radius: 10px; padding: 0.65rem 0.85rem; max-width: 100%;
+  }
+  .msg.mine .bubble { background: #14532d; }
+  .msg .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .toast {
+    display: none; margin-bottom: 1rem; padding: 0.7rem 1rem; border-radius: 8px;
+    background: #052e16; border: 1px solid var(--accent); color: var(--accent2);
+  }
+  .toast.show { display: block; }
+  .signed { color: var(--accent); font-weight: 700; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+  <div class="banner">Example demo, sample business — Saguaro Landscapes is a fictional Tucson shop. Portal data is sample / example content.</div>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">Saguaro <span>Landscapes</span></div>
+      <div class="client">Client portal · Reyes Residence<br/>4821 E Broadway · Tucson (example)</div>
+      <nav class="nav" id="nav">
+        <button type="button" class="active" data-view="dashboard">Dashboard</button>
+        <button type="button" data-view="projects">Projects</button>
+        <button type="button" data-view="files">Files</button>
+        <button type="button" data-view="messages">Messages</button>
+        <button type="button" data-view="approvals">Approvals</button>
+      </nav>
+    </aside>
+    <div class="content">
+      <div id="toast" class="toast"></div>
+
+      <section class="view active" id="view-dashboard">
+        <div class="card">
+          <h1>Welcome back, Elena</h1>
+          <p class="muted">Example client dashboard for a Tucson landscaping project. Overall progress:</p>
+          <div class="progress-bar"><i id="overall-bar" style="width:62%"></i></div>
+          <p><strong id="overall-pct">62%</strong> <span class="muted">complete · front yard reno (demo)</span></p>
+          <div class="stats" style="margin-top:1rem">
+            <div class="stat"><strong>2</strong><span>Active projects</span></div>
+            <div class="stat"><strong>1</strong><span>Awaiting approval</span></div>
+            <div class="stat"><strong>5</strong><span>Shared files</span></div>
+            <div class="stat"><strong>3</strong><span>Unread messages</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Next up</h2>
+          <div class="project">
+            <div>
+              <strong>Hardscape install — phase 2</strong>
+              <div class="muted">Crew on site Thu · pavers &amp; edging (example)</div>
+            </div>
+            <span class="badge active">Scheduled</span>
+          </div>
+          <div class="project">
+            <div>
+              <strong>Plant palette sign-off</strong>
+              <div class="muted">Needs your approval before ordering</div>
+            </div>
+            <span class="badge wait">Action needed</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-projects">
+        <div class="card">
+          <h2>Projects</h2>
+          <div class="project">
+            <div>
+              <strong>Front yard renovation</strong>
+              <div class="muted">Started Oct 14 · Tucson · demo project</div>
+              <div class="progress-bar" style="max-width:280px"><i style="width:70%"></i></div>
+            </div>
+            <span class="badge active">In progress</span>
+          </div>
+          <div class="project">
+            <div>
+              <strong>Drip irrigation upgrade</strong>
+              <div class="muted">Started Nov 1 · demo project</div>
+              <div class="progress-bar" style="max-width:280px"><i style="width:40%"></i></div>
+            </div>
+            <span class="badge active">In progress</span>
+          </div>
+          <div class="project">
+            <div>
+              <strong>Back patio refresh (2025)</strong>
+              <div class="muted">Completed Aug 2025 · example history</div>
+              <div class="progress-bar" style="max-width:280px"><i style="width:100%"></i></div>
+            </div>
+            <span class="badge done">Complete</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-files">
+        <div class="card">
+          <h2>Files</h2>
+          <p class="muted">Example file area. Buttons simulate download / open — no real files leave this browser.</p>
+          <div id="file-list"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-messages">
+        <div class="card">
+          <h2>Messages</h2>
+          <p class="muted">Chat with your project manager (demo). Messages stay in this browser.</p>
+          <div id="msg-list"></div>
+          <div class="composer">
+            <input id="msg-input" type="text" placeholder="Type a message…" maxlength="500" />
+            <button type="button" class="primary" id="msg-send">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-approvals">
+        <div class="card">
+          <h2>Approvals</h2>
+          <p class="muted">Sign off on plans before work continues. Demo only — no legal contract.</p>
+          <div id="approval-list"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+<script>
+(function () {
+  const MSG_KEY = 'saguaro-portal-msgs-v1';
+  const APPR_KEY = 'saguaro-portal-appr-v1';
+
+  const files = [
+    { name: 'Site plan — front yard.pdf', size: '1.2 MB', when: '2026-10-15' },
+    { name: 'Plant palette v2.pdf', size: '840 KB', when: '2026-11-05' },
+    { name: 'Irrigation layout.png', size: '2.1 MB', when: '2026-11-01' },
+    { name: 'Change order #1.pdf', size: '220 KB', when: '2026-10-28' },
+    { name: 'Weekly progress photos.zip', size: '8.4 MB', when: '2026-11-07' }
+  ];
+
+  const seedMsgs = [
+    { id: 'm1', from: 'Maya (PM)', mine: false, when: '2026-11-07 09:12', text: 'Morning Elena — pavers arrive Wednesday. Still good for Thursday start?' },
+    { id: 'm2', from: 'You', mine: true, when: '2026-11-07 09:40', text: 'Yes, Thursday works. Gate code is the same.' },
+    { id: 'm3', from: 'Maya (PM)', mine: false, when: '2026-11-08 14:05', text: 'Plant palette v2 is in Files. Please approve when you can so we can order.' }
+  ];
+
+  const seedAppr = [
+    {
+      id: 'a1', title: 'Plant palette v2', detail: 'Desert-adapted shrubs & accent trees for front beds. Example list.',
+      status: 'pending', signedAt: null
+    },
+    {
+      id: 'a2', title: 'Hardscape materials', detail: 'Concrete pavers — desert tan. Example selection.',
+      status: 'approved', signedAt: '2026-10-20 11:04'
+    },
+    {
+      id: 'a3', title: 'Irrigation change order #1', detail: 'Extra drip zones for new beds (sample change order).',
+      status: 'pending', signedAt: null
+    }
+  ];
+
+  function loadMsgs() {
+    try {
+      const raw = localStorage.getItem(MSG_KEY);
+      if (!raw) return structuredClone(seedMsgs);
+      return JSON.parse(raw);
+    } catch { return structuredClone(seedMsgs); }
+  }
+  function saveMsgs(m) { localStorage.setItem(MSG_KEY, JSON.stringify(m)); }
+
+  function loadAppr() {
+    try {
+      const raw = localStorage.getItem(APPR_KEY);
+      if (!raw) return structuredClone(seedAppr);
+      return JSON.parse(raw);
+    } catch { return structuredClone(seedAppr); }
+  }
+  function saveAppr(a) { localStorage.setItem(APPR_KEY, JSON.stringify(a)); }
+
+  let messages = loadMsgs();
+  let approvals = loadAppr();
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function stamp() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  document.querySelectorAll('#nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    });
+  });
+
+  function renderFiles() {
+    const el = document.getElementById('file-list');
+    el.innerHTML = files.map(f => `
+      <div class="file-row">
+        <div>
+          <strong>${esc(f.name)}</strong>
+          <div class="muted">${esc(f.size)} · ${esc(f.when)}</div>
+        </div>
+        <button type="button" class="ghost" data-file="${esc(f.name)}">Open (demo)</button>
+      </div>`).join('');
+    el.querySelectorAll('[data-file]').forEach(btn => {
+      btn.addEventListener('click', () => toast('Opened “' + btn.dataset.file + '” in demo viewer. (No real download.)'));
+    });
+  }
+
+  function renderMsgs() {
+    const el = document.getElementById('msg-list');
+    el.innerHTML = messages.map(m => `
+      <div class="msg ${m.mine ? 'mine' : ''}">
+        <div>
+          <div class="meta">${esc(m.from)} · ${esc(m.when)}</div>
+          <div class="bubble">${esc(m.text)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('msg-send').addEventListener('click', sendMsg);
+  document.getElementById('msg-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMsg();
+  });
+
+  function sendMsg() {
+    const input = document.getElementById('msg-input');
+    const text = input.value.trim();
+    if (!text) return;
+    messages.push({ id: 'm' + Date.now(), from: 'You', mine: true, when: stamp(), text });
+    saveMsgs(messages);
+    input.value = '';
+    renderMsgs();
+    toast('Message sent. (Demo — PM not notified)');
+    setTimeout(() => {
+      messages.push({
+        id: 'm' + Date.now(), from: 'Maya (PM)', mine: false, when: stamp(),
+        text: 'Got it — thanks! (auto demo reply)'
+      });
+      saveMsgs(messages);
+      renderMsgs();
+    }, 900);
+  }
+
+  function renderApprovals() {
+    const el = document.getElementById('approval-list');
+    el.innerHTML = approvals.map(a => `
+      <div class="approval" data-id="${esc(a.id)}">
+        <div>
+          <strong>${esc(a.title)}</strong>
+          <div class="muted">${esc(a.detail)}</div>
+          ${a.status === 'approved'
+            ? `<div class="signed">✓ Signed off ${esc(a.signedAt)}</div>`
+            : a.status === 'declined'
+              ? `<div class="signed" style="color:#f87171">✗ Declined ${esc(a.signedAt)}</div>`
+              : `<span class="badge wait">Awaiting you</span>`}
+        </div>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          ${a.status === 'pending' ? `
+            <button type="button" class="primary" data-act="approve">Approve / sign</button>
+            <button type="button" class="danger" data-act="decline">Decline</button>` : `
+            <button type="button" class="ghost" data-act="reset">Reset (demo)</button>`}
+        </div>
+      </div>`).join('');
+    el.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.approval').dataset.id;
+        const item = approvals.find(x => x.id === id);
+        if (!item) return;
+        if (btn.dataset.act === 'approve') {
+          item.status = 'approved';
+          item.signedAt = stamp();
+          toast('Signed off: ' + item.title);
+        } else if (btn.dataset.act === 'decline') {
+          item.status = 'declined';
+          item.signedAt = stamp();
+          toast('Declined: ' + item.title);
+        } else {
+          item.status = 'pending';
+          item.signedAt = null;
+          toast('Reset to pending (demo).');
+        }
+        saveAppr(approvals);
+        renderApprovals();
+      });
+    });
+  }
+
+  renderFiles();
+  renderMsgs();
+  renderApprovals();
+})();
+</script>
+</body>
+</html>

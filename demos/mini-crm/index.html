@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Catalina HVAC — Mini CRM (Demo)</title>
+<style>
+  :root {
+    --bg: #111827; --panel: #1f2937; --card: #374151; --text: #f9fafb;
+    --muted: #9ca3af; --accent: #f97316; --accent2: #fb923c; --border: #4b5563;
+    --new: #3b82f6; --contacted: #8b5cf6; --meeting: #eab308; --proposal: #14b8a6; --won: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+  }
+  .banner {
+    background: #78350f; color: #fef3c7; text-align: center; padding: 0.45rem 1rem;
+    font-size: 0.85rem; font-weight: 600;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    gap: 0.75rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .logo { font-weight: 800; font-size: 1.15rem; }
+  .logo span { color: var(--accent2); }
+  .meta { color: var(--muted); font-size: 0.85rem; }
+  header .actions { display: flex; gap: 0.5rem; }
+  button {
+    font-family: inherit; cursor: pointer; border-radius: 8px; font-size: 0.85rem;
+  }
+  button.primary {
+    background: var(--accent); color: #111; border: none; padding: 0.5rem 0.9rem; font-weight: 700;
+  }
+  button.ghost {
+    background: transparent; color: var(--text); border: 1px solid var(--border); padding: 0.5rem 0.9rem;
+  }
+  .board {
+    display: flex; gap: 0.75rem; padding: 1rem; overflow-x: auto; min-height: calc(100vh - 110px);
+    align-items: flex-start;
+  }
+  .column {
+    flex: 0 0 240px; background: var(--panel); border-radius: 12px; border: 1px solid var(--border);
+    display: flex; flex-direction: column; max-height: calc(100vh - 130px);
+  }
+  .column-h {
+    padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex;
+    justify-content: space-between; align-items: center; position: sticky; top: 0;
+  }
+  .column-h h3 { margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .count {
+    background: #111827; color: var(--muted); font-size: 0.75rem; padding: 0.15rem 0.45rem;
+    border-radius: 99px; font-weight: 600;
+  }
+  .cards { padding: 0.5rem; overflow-y: auto; flex: 1; min-height: 80px; }
+  .cards.drag-over { outline: 2px dashed var(--accent); outline-offset: -4px; }
+  .card {
+    background: var(--card); border-radius: 10px; padding: 0.75rem; margin-bottom: 0.5rem;
+    cursor: grab; border: 1px solid transparent; user-select: none;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card.dragging { opacity: 0.45; }
+  .card h4 { margin: 0 0 0.25rem; font-size: 0.95rem; }
+  .card .sub { color: var(--muted); font-size: 0.78rem; }
+  .card .tags { margin-top: 0.5rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .pill {
+    font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 6px; background: #111827; color: var(--muted);
+  }
+  .value { color: var(--accent2); font-weight: 700; font-size: 0.85rem; margin-top: 0.4rem; }
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 40;
+  }
+  .overlay.open { display: block; }
+  .side {
+    position: fixed; top: 0; right: 0; width: min(400px, 100%); height: 100%;
+    background: var(--panel); border-left: 1px solid var(--border); z-index: 50;
+    transform: translateX(100%); transition: transform 0.2s ease; display: flex; flex-direction: column;
+  }
+  .side.open { transform: translateX(0); }
+  .side-h {
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;
+  }
+  .side-h h2 { margin: 0; font-size: 1.15rem; }
+  .side-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin: 0.75rem 0 0.3rem; }
+  textarea, select, input {
+    width: 100%; background: #111827; border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 0.55rem 0.7rem; font-family: inherit; font-size: 0.9rem;
+  }
+  .timeline { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+  .timeline li {
+    position: relative; padding: 0 0 1rem 1.1rem; border-left: 2px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .timeline li:last-child { border-left-color: transparent; }
+  .timeline li::before {
+    content: ''; position: absolute; left: -5px; top: 4px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--accent);
+  }
+  .timeline .when { color: var(--muted); font-size: 0.75rem; }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 0.35rem; }
+</style>
+</head>
+<body>
+  <div class="banner">Example demo, sample business — Catalina HVAC is a fictional Tucson shop. Sample pipeline data. Not a real CRM.</div>
+  <header>
+    <div>
+      <div class="logo">Catalina <span>HVAC</span> · Mini CRM</div>
+      <div class="meta">Drag cards between stages · click a card for notes &amp; timeline</div>
+    </div>
+    <div class="actions">
+      <button type="button" class="ghost" id="reset-btn">Reset sample data</button>
+      <button type="button" class="primary" id="add-btn">+ New lead</button>
+    </div>
+  </header>
+  <div class="board" id="board"></div>
+  <div class="overlay" id="overlay"></div>
+  <aside class="side" id="side" aria-hidden="true">
+    <div class="side-h">
+      <div>
+        <h2 id="side-title">Lead</h2>
+        <div class="meta" id="side-sub"></div>
+      </div>
+      <button type="button" class="ghost" id="close-side">Close</button>
+    </div>
+    <div class="side-body">
+      <label for="side-stage">Stage</label>
+      <select id="side-stage"></select>
+      <label for="side-notes">Notes</label>
+      <textarea id="side-notes" rows="4" placeholder="Add a note…"></textarea>
+      <div style="margin-top:0.75rem;display:flex;gap:0.5rem">
+        <button type="button" class="primary" id="save-notes">Save note</button>
+      </div>
+      <h3 style="margin:1.25rem 0 0.5rem;font-size:0.9rem">Activity timeline</h3>
+      <ul class="timeline" id="timeline"></ul>
+    </div>
+  </aside>
+<script>
+(function () {
+  const KEY = 'catalina-crm-v1';
+  const STAGES = [
+    { id: 'new', label: 'New', color: 'var(--new)' },
+    { id: 'contacted', label: 'Contacted', color: 'var(--contacted)' },
+    { id: 'meeting', label: 'Meeting', color: 'var(--meeting)' },
+    { id: 'proposal', label: 'Proposal', color: 'var(--proposal)' },
+    { id: 'won', label: 'Won', color: 'var(--won)' }
+  ];
+
+  const seed = [
+    {
+      id: 'c1', name: 'Rivera Residence', contact: 'Elena Rivera', phone: '(520) 555-0133',
+      service: 'AC replace — 3 ton', value: 'Sample estimate', stage: 'new',
+      notes: 'Home near Grant & Swan. Unit 14 years old.',
+      activity: [
+        { when: '2026-11-08 08:20', text: 'Lead created from website form (demo)' },
+        { when: '2026-11-08 08:21', text: 'Auto SMS: thanks for requesting a quote (demo)' }
+      ]
+    },
+    {
+      id: 'c2', name: 'Pima Medical Office', contact: 'Tom Hale', phone: '(520) 555-0188',
+      service: 'Quarterly PM contract', value: 'Sample contract', stage: 'contacted',
+      notes: '3 rooftop units. Prefers Friday mornings.',
+      activity: [
+        { when: '2026-11-05 10:00', text: 'Lead created' },
+        { when: '2026-11-06 14:15', text: 'Called — left voicemail' },
+        { when: '2026-11-07 09:40', text: 'Email with PM checklist sent' }
+      ]
+    },
+    {
+      id: 'c3', name: 'Ortiz Family Home', contact: 'Luis Ortiz', phone: '(520) 555-0104',
+      service: 'Duct cleaning + filter', value: 'Sample visit', stage: 'meeting',
+      notes: 'Allergy concerns. Kids / pets.',
+      activity: [
+        { when: '2026-11-04 16:00', text: 'Booked site visit for Tue 9 AM' }
+      ]
+    },
+    {
+      id: 'c4', name: 'Sahuarita Rental', contact: 'Kayla Moss', phone: '(520) 555-0172',
+      service: 'Furnace repair', value: 'Sample estimate', stage: 'proposal',
+      notes: 'Landlord approval needed for higher-cost parts. (sample note)',
+      activity: [
+        { when: '2026-11-03 11:30', text: 'Diagnosed inducer motor' },
+        { when: '2026-11-03 15:00', text: 'Proposal emailed (demo PDF)' }
+      ]
+    },
+    {
+      id: 'c5', name: 'Midtown Cafe', contact: 'Ben Cho', phone: '(520) 555-0191',
+      service: 'Walk-in cooler repair', value: 'Sample estimate', stage: 'won',
+      notes: 'Paid deposit. Job scheduled Sat.',
+      activity: [
+        { when: '2026-11-01 13:00', text: 'Proposal accepted' },
+        { when: '2026-11-02 09:00', text: 'Deposit received — marked Won' }
+      ]
+    },
+    {
+      id: 'c6', name: 'Foothills Guest House', contact: 'Nina Brooks', phone: '(520) 555-0155',
+      service: 'Mini-split install', value: 'Sample estimate', stage: 'new',
+      notes: 'Casita above garage. Power already run.',
+      activity: [{ when: '2026-11-09 07:50', text: 'Inbound call logged' }]
+    }
+  ];
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return structuredClone(seed);
+      return JSON.parse(raw);
+    } catch { return structuredClone(seed); }
+  }
+  function save(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+
+  let deals = load();
+  let activeId = null;
+  let dragId = null;
+
+  const board = document.getElementById('board');
+  const side = document.getElementById('side');
+  const overlay = document.getElementById('overlay');
+  const stageSelect = document.getElementById('side-stage');
+
+  STAGES.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.label;
+    stageSelect.appendChild(opt);
+  });
+
+  function render() {
+    board.innerHTML = '';
+    STAGES.forEach(stage => {
+      const col = document.createElement('div');
+      col.className = 'column';
+      col.dataset.stage = stage.id;
+      const list = deals.filter(d => d.stage === stage.id);
+      col.innerHTML = `
+        <div class="column-h">
+          <h3><span class="stage-dot" style="background:${stage.color}"></span>${stage.label}</h3>
+          <span class="count">${list.length}</span>
+        </div>`;
+      const cards = document.createElement('div');
+      cards.className = 'cards';
+      cards.dataset.stage = stage.id;
+      cards.addEventListener('dragover', e => { e.preventDefault(); cards.classList.add('drag-over'); });
+      cards.addEventListener('dragleave', () => cards.classList.remove('drag-over'));
+      cards.addEventListener('drop', e => {
+        e.preventDefault();
+        cards.classList.remove('drag-over');
+        if (!dragId) return;
+        const deal = deals.find(d => d.id === dragId);
+        if (!deal || deal.stage === stage.id) return;
+        const from = deal.stage;
+        deal.stage = stage.id;
+        deal.activity = deal.activity || [];
+        deal.activity.push({
+          when: stamp(),
+          text: `Moved ${labelOf(from)} → ${stage.label}`
+        });
+        save(deals);
+        render();
+        if (activeId === dragId) openSide(dragId);
+      });
+      list.forEach(d => cards.appendChild(makeCard(d)));
+      col.appendChild(cards);
+      board.appendChild(col);
+    });
+  }
+
+  function labelOf(id) {
+    return (STAGES.find(s => s.id === id) || {}).label || id;
+  }
+
+  function makeCard(d) {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.draggable = true;
+    el.dataset.id = d.id;
+    el.innerHTML = `
+      <h4>${esc(d.name)}</h4>
+      <div class="sub">${esc(d.contact)} · ${esc(d.phone)}</div>
+      <div class="tags"><span class="pill">${esc(d.service)}</span></div>
+      <div class="value">${esc(d.value)}</div>`;
+    el.addEventListener('dragstart', () => { dragId = d.id; el.classList.add('dragging'); });
+    el.addEventListener('dragend', () => { dragId = null; el.classList.remove('dragging'); });
+    el.addEventListener('click', () => openSide(d.id));
+    return el;
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function stamp() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function openSide(id) {
+    const d = deals.find(x => x.id === id);
+    if (!d) return;
+    activeId = id;
+    document.getElementById('side-title').textContent = d.name;
+    document.getElementById('side-sub').textContent = `${d.contact} · ${d.phone} · ${d.service}`;
+    stageSelect.value = d.stage;
+    document.getElementById('side-notes').value = '';
+    const tl = document.getElementById('timeline');
+    tl.innerHTML = '';
+    const notesBlock = document.createElement('li');
+    notesBlock.innerHTML = `<div class="when">Current notes</div><div>${esc(d.notes || '—')}</div>`;
+    tl.appendChild(notesBlock);
+    (d.activity || []).slice().reverse().forEach(a => {
+      const li = document.createElement('li');
+      li.innerHTML = `<div class="when">${esc(a.when)}</div><div>${esc(a.text)}</div>`;
+      tl.appendChild(li);
+    });
+    side.classList.add('open');
+    overlay.classList.add('open');
+    side.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSide() {
+    side.classList.remove('open');
+    overlay.classList.remove('open');
+    side.setAttribute('aria-hidden', 'true');
+    activeId = null;
+  }
+
+  document.getElementById('close-side').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+
+  stageSelect.addEventListener('change', () => {
+    if (!activeId) return;
+    const d = deals.find(x => x.id === activeId);
+    if (!d || d.stage === stageSelect.value) return;
+    const from = d.stage;
+    d.stage = stageSelect.value;
+    d.activity.push({ when: stamp(), text: `Moved ${labelOf(from)} → ${labelOf(d.stage)} (panel)` });
+    save(deals);
+    render();
+    openSide(activeId);
+  });
+
+  document.getElementById('save-notes').addEventListener('click', () => {
+    if (!activeId) return;
+    const text = document.getElementById('side-notes').value.trim();
+    if (!text) return;
+    const d = deals.find(x => x.id === activeId);
+    d.notes = (d.notes ? d.notes + '\n' : '') + text;
+    d.activity.push({ when: stamp(), text: 'Note: ' + text });
+    save(deals);
+    openSide(activeId);
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    deals = structuredClone(seed);
+    save(deals);
+    closeSide();
+    render();
+  });
+
+  document.getElementById('add-btn').addEventListener('click', () => {
+    const id = 'c' + Date.now();
+    const deal = {
+      id, name: 'New Tucson Lead', contact: 'Walk-in', phone: '(520) 555-0100',
+      service: 'Estimate request', value: 'TBD', stage: 'new',
+      notes: 'Created from + New lead',
+      activity: [{ when: stamp(), text: 'Lead created manually' }]
+    };
+    deals.push(deal);
+    save(deals);
+    render();
+    openSide(id);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
