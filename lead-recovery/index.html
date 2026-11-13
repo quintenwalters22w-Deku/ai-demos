@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead Recovery for Tucson Trades | Quinten Walters</title>
+<meta name="description" content="Turn old, unanswered estimates into booked jobs with friendly, automatic follow-up texts. Built for Tucson trades businesses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="demo-banner" role="note">Demo page: business names, messages and numbers below are example content, not real customer results.</div>
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Quinten Walters home"><span class="dot"></span>Quinten Walters<span class="sub">for local trades</span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+    <nav id="menu" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#demo">See it run</a>
+      <a href="#calc">Calculator</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-red sm" href="#contact">Book a demo</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Lead Recovery</p>
+      <h1>Your old estimates are <span class="red">money on the table.</span></h1>
+      <p class="lead">Most quotes don't get a "no." They just go quiet. Lead Recovery sends friendly, well-timed follow-up texts to every estimate that never got an answer, so the ready-to-book ones come back to you.</p>
+      <div class="cta-row">
+        <a class="btn btn-red" href="#demo">Watch a campaign run</a>
+        <a class="btn btn-ghost" href="#calc">Count what you're missing</a>
+      </div>
+      <ul class="ticks">
+        <li>Works with your existing estimate list</li>
+        <li>Opt-outs honored instantly</li>
+        <li>You get a text the moment someone's ready</li>
+      </ul>
+    </div>
+    <div class="hero-card" aria-label="Example follow-up conversation">
+      <div class="phone">
+        <div class="phone-top"><span>Desert Bloom Electric</span><small>Example</small></div>
+        <div class="thread" id="heroThread" aria-live="polite"></div>
+      </div>
+      <div class="owner-pop" id="ownerPop" hidden>
+        <strong>New booking</strong>
+        <span>Maria R. picked Thu 9 AM for her panel upgrade (example)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="strip">
+  <div class="wrap strip-in">
+    <div><b>Quiet quotes</b><span>The estimates nobody followed up on</span></div>
+    <div><b>2 to 3 touches</b><span>Spaced out, never pushy</span></div>
+    <div><b>Your voice</b><span>Messages written the way you talk</span></div>
+    <div><b>Zero busywork</b><span>No chasing, no spreadsheets</span></div>
+  </div>
+</section>
+
+<section id="how" class="section">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>Set it up once. It keeps working.</h2>
+    <ol class="steps">
+      <li><span class="num">1</span><h3>Hand over your list</h3><p>Send the estimates from the last few months that never closed. A spreadsheet, a photo of your notebook, an export from your booking software. We clean it up.</p></li>
+      <li><span class="num">2</span><h3>Approve the messages</h3><p>We write a short, friendly sequence in your voice. You read it, tweak it and approve it before a single text goes out.</p></li>
+      <li><span class="num">3</span><h3>Replies come to you</h3><p>"Yes, let's do it" gets a booking link and an alert to your phone. "Not now" gets a reminder later. "Stop" is removed right away.</p></li>
+      <li><span class="num">4</span><h3>New quotes join automatically</h3><p>Every new estimate that goes quiet gets the same follow-up, so nothing slips again.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="demo" class="section dark">
+  <div class="wrap">
+    <p class="eyebrow">See it run</p>
+    <h2>Watch a two-week campaign in 30 seconds.</h2>
+    <p class="muted">Example campaign for a fictional electrician with 8 quiet estimates. Pick a tone and press play.</p>
+    <div class="demo-controls">
+      <fieldset class="tone">
+        <legend>Message tone</legend>
+        <label><input type="radio" name="tone" value="friendly" checked> Friendly</label>
+        <label><input type="radio" name="tone" value="seasonal"> Seasonal</label>
+        <label><input type="radio" name="tone" value="direct"> Short and direct</label>
+      </fieldset>
+      <div class="preview"><small>First text preview</small><p id="preview"></p></div>
+      <div class="demo-btns">
+        <button class="btn btn-red" id="play">Play campaign</button>
+        <button class="btn btn-ghost light" id="reset">Reset</button>
+      </div>
+    </div>
+    <div class="day-bar"><span id="dayLabel">Day 0 of 14</span><div class="bar"><i id="dayFill"></i></div></div>
+    <div class="board" id="board" aria-live="polite">
+      <div class="col" data-col="waiting"><h4>Waiting <em id="c-waiting">0</em></h4><div class="cards"></div></div>
+      <div class="col" data-col="replied"><h4>Replied <em id="c-replied">0</em></h4><div class="cards"></div></div>
+      <div class="col" data-col="booked"><h4>Booked <em id="c-booked">0</em></h4><div class="cards"></div></div>
+      <div class="col" data-col="later"><h4>Later / no reply <em id="c-later">0</em></h4><div class="cards"></div></div>
+      <div class="col" data-col="stop"><h4>Opted out <em id="c-stop">0</em></h4><div class="cards"></div></div>
+    </div>
+    <div class="summary" id="summary" hidden>
+      <p><b id="sumBooked">0</b> jobs booked and <b id="sumValue">$0</b> in recovered work from 8 quotes you'd already written off (example numbers).</p>
+    </div>
+  </div>
+</section>
+
+<section id="calc" class="section">
+  <div class="wrap calc-grid">
+    <div>
+      <p class="eyebrow">Calculator</p>
+      <h2>What are your quiet quotes worth?</h2>
+      <p class="muted">Move the sliders to match your shop. This is a rough estimate to think with, not a promise.</p>
+      <div class="field"><label for="q">Quiet estimates per month <output id="qo">30</output></label><input type="range" id="q" min="5" max="150" value="30"></div>
+      <div class="field"><label for="v">Average job value <output id="vo">$1,200</output></label><input type="range" id="v" min="150" max="15000" step="50" value="1200"></div>
+      <div class="field"><label for="r">Share that come back after follow-up <output id="ro">8%</output></label><input type="range" id="r" min="2" max="25" value="8"></div>
+    </div>
+    <div class="calc-out" aria-live="polite">
+      <div><small>Jobs recovered per month</small><b id="jobs">2.4</b></div>
+      <div><small>Recovered revenue per month</small><b id="rev">$2,880</b></div>
+      <div><small>Per year</small><b id="yr">$34,560</b></div>
+      <p id="breakeven" class="be"></p>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section soft">
+  <div class="wrap">
+    <p class="eyebrow">Pricing</p>
+    <h2>Simple, and always open to a conversation.</h2>
+    <div class="price-card">
+      <div>
+        <h3>Lead Recovery</h3>
+        <p class="price">Starting at <b>$1,000</b> setup <span>+ $99/mo</span></p>
+        <p class="muted">Every shop is different, so pricing is always negotiable. Let's talk about what fits.</p>
+      </div>
+      <ul>
+        <li>List cleanup and import</li>
+        <li>Follow-up sequence written in your voice</li>
+        <li>Booking link and instant owner alerts</li>
+        <li>New quiet quotes added automatically</li>
+        <li>Monthly plan covers upkeep and fixes</li>
+        <li>Texting and phone-number costs are paid separately</li>
+      </ul>
+      <a class="btn btn-red" href="#contact">Get a quote</a>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="section">
+  <div class="wrap narrow">
+    <p class="eyebrow">FAQ</p>
+    <h2>Questions owners ask</h2>
+    <div class="faq">
+      <button aria-expanded="false" aria-controls="f1">Won't this annoy people?</button>
+      <div id="f1" hidden><p>Each person gets two or three short texts spread over a couple of weeks, and anyone who replies "stop" is removed immediately. The messages read like a polite check-in from you, not an ad.</p></div>
+      <button aria-expanded="false" aria-controls="f2">How old can the estimates be?</button>
+      <div id="f2" hidden><p>Quotes from the last 3 to 12 months usually work best. Older ones can still be worth a seasonal check-in.</p></div>
+      <button aria-expanded="false" aria-controls="f3">Do I have to change my software?</button>
+      <div id="f3" hidden><p>No. We work from whatever you use now, even a paper notebook.</p></div>
+      <button aria-expanded="false" aria-controls="f4">Who sees the messages before they go out?</button>
+      <div id="f4" hidden><p>You do. Nothing is sent until you approve the wording.</p></div>
+      <button aria-expanded="false" aria-controls="f5">How long is the contract?</button>
+      <div id="f5" hidden><p>Plans run for 6 months or a full year. The monthly fee covers maintenance and any fixes.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="section dark">
+  <div class="wrap contact-grid">
+    <div>
+      <p class="eyebrow">Book a demo</p>
+      <h2>Let's see what's sitting in your old quotes.</h2>
+      <p class="muted">15 minutes on Zoom. I'll show you a live campaign and we'll estimate your numbers together.</p>
+      <p class="direct">Call or text <a href="tel:+15204740291">520-474-0291</a><br>Email <a href="mailto:QuintenWalters22@outlook.com">QuintenWalters22@outlook.com</a></p>
+    </div>
+    <form id="form" novalidate>
+      <p class="form-note">Demo form: submissions on this sample page aren't sent anywhere.</p>
+      <label>Name<input name="name" required autocomplete="name"></label>
+      <label>Business<input name="biz" required autocomplete="organization"></label>
+      <label>Phone<input name="phone" type="tel" required autocomplete="tel"></label>
+      <label>Roughly how many quiet estimates do you have?
+        <select name="count"><option>Under 25</option><option>25 to 100</option><option>100+</option><option>Not sure</option></select></label>
+      <button class="btn btn-red" type="submit">Request my demo</button>
+      <p class="form-msg" id="formMsg" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+<footer class="foot"><div class="wrap">© 2026 Quinten Walters · Tucson, AZ · Example business names, messages and figures on this page are for demonstration only.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
