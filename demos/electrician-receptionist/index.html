@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Virtual Receptionist Live Console — Sentinel Peak Electric (Demo)</title>
+<meta name="description" content="Interactive demo: pick a caller, steer the conversation, and watch a virtual receptionist for a local electrician qualify, book, escalate emergencies and text the owner a summary. Example content only.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#console">Skip to the demo</a>
+<div class="demo-banner" role="note">Interactive demo. Sentinel Peak Electric is a fictional business; every caller, address, price and number on this page is example content.</div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#"><span class="bolt" aria-hidden="true">⚡</span><span><b>Sentinel Peak Electric</b><small>Example business · Tucson, AZ</small></span></a>
+    <nav aria-label="Page">
+      <a href="#console">Live console</a><a href="#how">How it works</a><a href="#calc">Missed-call math</a><a href="#pricing">Pricing</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="eyebrow">Virtual receptionist · interactive demo</p>
+    <h1>Every call answered. <span>Even at 9:40 PM.</span></h1>
+    <p class="lede">Pick a caller below, choose what they say, and watch the receptionist sort the emergency from the quote request, check the service area, book the slot, and text the owner a clean summary. No hold music, no voicemail.</p>
+    <div class="hero-cta"><a class="btn primary" href="#console">Try a call</a><a class="btn ghost" href="#how">See how it works</a></div>
+    <ul class="hero-stats" aria-label="Example figures">
+      <li><b>24/7</b><span>answers every ring</span></li>
+      <li><b>&lt;1s</b><span>to pick up (example)</span></li>
+      <li><b>1 text</b><span>summary per call</span></li>
+    </ul>
+  </div>
+  <div class="hero-card" aria-hidden="true">
+    <div class="ring"><span></span><span></span><span></span></div>
+    <div class="hc-phone">
+      <p class="hc-label">Incoming call · 9:41 PM</p>
+      <p class="hc-name">(520) 555-0148</p>
+      <p class="hc-tag">Answered by virtual receptionist</p>
+      <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="hc-sms"><b>Owner text (example)</b>⚠️ EMERGENCY · Buzzing panel, burning smell · 4120 E Fort Lowell · Caller told to kill main + leave area · On-call paged.</div>
+  </div>
+</section>
+
+<section id="console" class="console-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Live console</p>
+      <h2>Run a call yourself</h2>
+      <p>Choose a caller, then pick their answers at each step. The right panel shows what the receptionist is noting in real time.</p>
+    </div>
+
+    <div class="controls">
+      <div class="scenarios" role="radiogroup" aria-label="Choose a caller">
+        <button class="scn" role="radio" aria-checked="false" data-s="panel"><span>🔥</span><b>Sparking panel</b><small>Possible emergency</small></button>
+        <button class="scn" role="radio" aria-checked="false" data-s="ev"><span>🔌</span><b>EV charger quote</b><small>High-value install</small></button>
+        <button class="scn" role="radio" aria-checked="false" data-s="outlet"><span>💡</span><b>Dead outlets</b><small>Maybe a quick fix</small></button>
+        <button class="scn" role="radio" aria-checked="false" data-s="screen"><span>🛡️</span><b>Sales / out of area</b><small>Screen it out</small></button>
+      </div>
+      <div class="toggles">
+        <span id="hrsLbl">Time of call</span>
+        <div class="seg" role="radiogroup" aria-labelledby="hrsLbl">
+          <button role="radio" aria-checked="true" data-h="day">Business hours</button>
+          <button role="radio" aria-checked="false" data-h="night">After hours</button>
+        </div>
+        <label class="speed"><input type="checkbox" id="fast"> Fast mode</label>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="call" aria-label="Call transcript">
+        <div class="call-top">
+          <div><span class="dot" id="dot"></span><b id="callTitle">No active call</b></div>
+          <span class="timer" id="timer">00:00</span>
+        </div>
+        <ol class="transcript" id="transcript" aria-live="polite">
+          <li class="empty">Pick a caller above to start a call.</li>
+        </ol>
+        <div class="choices" id="choices" aria-live="polite"></div>
+      </div>
+
+      <aside class="notes" aria-label="Receptionist notes">
+        <h3>Receptionist notes</h3>
+        <dl id="notes">
+          <div><dt>Caller</dt><dd data-k="caller">—</dd></div>
+          <div><dt>Reason</dt><dd data-k="intent">—</dd></div>
+          <div><dt>Urgency</dt><dd data-k="urgency">—</dd></div>
+          <div><dt>Address</dt><dd data-k="address">—</dd></div>
+          <div><dt>Service area</dt><dd data-k="area">—</dd></div>
+          <div><dt>Outcome</dt><dd data-k="outcome">—</dd></div>
+        </dl>
+        <div class="owner-phone">
+          <p class="op-head">Owner's phone</p>
+          <div class="op-screen" id="ownerSms"><p class="op-empty">Summary texts show up here when a call ends.</p></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="log">
+      <div class="log-head">
+        <h3>Today's call log <small>(example)</small></h3>
+        <ul class="kpis">
+          <li><b id="kAns">0</b><span>answered</span></li>
+          <li><b id="kBook">0</b><span>booked</span></li>
+          <li><b id="kEmer">0</b><span>emergencies paged</span></li>
+          <li><b id="kScreen">0</b><span>screened out</span></li>
+        </ul>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Time</th><th scope="col">Caller</th><th scope="col">Reason</th><th scope="col">Outcome</th></tr></thead>
+          <tbody id="logBody"><tr class="empty"><td colspan="4">Finished calls are logged here.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="how wrap">
+  <div class="sec-head"><p class="eyebrow">How it works</p><h2>Set up once, answers forever</h2></div>
+  <ol class="steps">
+    <li><span>1</span><h3>We learn your shop</h3><p>Services, service area ZIPs, hours, on-call rules, the jobs you want and the ones you don't.</p></li>
+    <li><span>2</span><h3>Calls forward to it</h3><p>When you can't pick up, or after hours, the receptionist answers in a natural voice with your business name.</p></li>
+    <li><span>3</span><h3>It sorts and books</h3><p>Emergencies get safety steps and a page to your on-call tech. Everything else gets qualified and a slot on your calendar.</p></li>
+    <li><span>4</span><h3>You get one text</h3><p>Name, number, address, what they need, and what was promised. Spam and sales calls never reach you.</p></li>
+  </ol>
+</section>
+
+<section id="calc" class="calc-sec">
+  <div class="wrap calc">
+    <div class="sec-head left"><p class="eyebrow">Missed-call math</p><h2>What unanswered calls might cost</h2><p>Move the sliders to your own numbers. Results are estimates for illustration, not a promise.</p></div>
+    <form class="calc-form" id="calcForm" onsubmit="return false">
+      <label>Missed calls per week <output id="oMiss">8</output><input type="range" id="miss" min="1" max="40" value="8"></label>
+      <label>Share that would have booked <output id="oRate">35%</output><input type="range" id="rate" min="5" max="80" step="5" value="35"></label>
+      <label>Average job value <output id="oJob">$420</output><input type="range" id="job" min="100" max="3000" step="20" value="420"></label>
+    </form>
+    <div class="calc-out" aria-live="polite">
+      <div><span>Jobs missed per month</span><b id="rJobs">12</b></div>
+      <div><span>Revenue at risk per month</span><b id="rRev">$5,040</b></div>
+      <div class="hl"><span>Setup pays for itself in about</span><b id="rBreak">1 week</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="pricing wrap">
+  <div class="price-card">
+    <p class="eyebrow">Pricing</p>
+    <h2>Starting at $1,000 setup + $99/mo</h2>
+    <p>Setup covers the script, your service area and on-call rules, calendar booking, and owner text summaries. The monthly retainer covers maintenance, tweaks and fixes. Phone-number and call-minute costs are paid separately. Price is always open to a conversation.</p>
+    <ul class="checks"><li>Answers 24/7 in your business name</li><li>Emergency safety steps + on-call paging</li><li>Books straight onto your calendar</li><li>Screens spam and sales calls</li></ul>
+    <a class="btn primary" href="#console">Run another demo call</a>
+  </div>
+</section>
+</main>
+
+<footer class="foot"><div class="wrap">Portfolio demo. Sentinel Peak Electric, its callers, addresses, prices and figures are fictional example content. Safety guidance in the demo is illustrative only.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
