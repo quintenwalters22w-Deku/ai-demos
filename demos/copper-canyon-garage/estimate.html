@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repair Estimator | Copper Canyon Garage Doors (example)</title><meta name="description" content="Example ballpark garage door repair estimator.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="demo-bar" role="note">Portfolio demo: Copper Canyon Garage Doors is a fictional business. All names, reviews, ratings, prices and numbers are example content.</div>
+<header class="site-head"><div class="wrap head-in">
+<a class="brand" href="index.html" aria-label="Copper Canyon Garage Doors home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Copper Canyon</b><small>Garage Doors · Tucson</small></span></a>
+<button class="toggle" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span><span></span></button>
+<nav aria-label="Main"><ul id="menu"><li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li><li><a href="estimate.html" aria-current="page">Repair Estimator</a></li><li><a href="about.html">About & Reviews</a></li><li><a href="contact.html">Contact</a></li></ul></nav>
+<a class="btn btn-call head-call" href="tel:+15205550148">Call (520) 555-0148</a></div></header>
+<main id="main">
+<section class="page-hero"><div class="wrap"><p class="eyebrow">Repair estimator</p><h1>Get a ballpark price in 30 seconds</h1><p class="lead">Answer four quick questions. You'll see an example price range and our recommendation, then book with one tap.</p></div></section>
+<section class="sec"><div class="wrap est-grid">
+<form class="est card" id="estForm" aria-describedby="estNote" onsubmit="return false">
+<fieldset><legend>1. What's going on?</legend><div class="opts" id="issueOpts">
+<label><input type="radio" name="issue" value="spring" checked><span>🌀 Loud bang, door won't lift</span></label>
+<label><input type="radio" name="issue" value="opener"><span>⚙️ Opener hums or won't respond</span></label>
+<label><input type="radio" name="issue" value="reverse"><span>↩️ Door reverses / won't close</span></label>
+<label><input type="radio" name="issue" value="track"><span>🛤️ Crooked or off track</span></label>
+<label><input type="radio" name="issue" value="noise"><span>🔊 Noisy, jerky, slow</span></label>
+<label><input type="radio" name="issue" value="new"><span>🏠 I want a new door</span></label></div></fieldset>
+<fieldset><legend>2. Door size</legend><div class="opts two">
+<label><input type="radio" name="size" value="single" checked><span>Single (8–9 ft)</span></label>
+<label><input type="radio" name="size" value="double"><span>Double (16 ft)</span></label></div></fieldset>
+<fieldset><legend>3. Door age</legend><div class="opts three">
+<label><input type="radio" name="age" value="new"><span>Under 5 yrs</span></label>
+<label><input type="radio" name="age" value="mid" checked><span>5–15 yrs</span></label>
+<label><input type="radio" name="age" value="old"><span>15+ yrs</span></label></div></fieldset>
+<fieldset><legend>4. How soon?</legend><div class="opts three">
+<label><input type="radio" name="when" value="emergency"><span>🚨 Car is stuck now</span></label>
+<label><input type="radio" name="when" value="today" checked><span>Today / tomorrow</span></label>
+<label><input type="radio" name="when" value="flex"><span>This week is fine</span></label></div></fieldset>
+<fieldset><legend>Add-ons</legend><div class="opts two">
+<label class="chk"><input type="checkbox" name="add" value="rollers"><span>Quiet nylon rollers (+$95)</span></label>
+<label class="chk"><input type="checkbox" name="add" value="backup"><span>Battery backup (+$110)</span></label>
+<label class="chk"><input type="checkbox" name="add" value="keypad"><span>Wireless keypad (+$65)</span></label>
+<label class="chk"><input type="checkbox" name="add" value="plan"><span>Tune-Up Plan (−15% repair)</span></label></div></fieldset>
+</form>
+<aside class="result card" aria-live="polite" id="result">
+<p class="eyebrow">Your example estimate</p><h2 id="resTitle">Spring replacement</h2>
+<div class="range" id="rangeOut">$—</div>
+<dl class="break"><div><dt>Base job</dt><dd id="baseOut"></dd></div><div><dt>Timing</dt><dd id="whenOut"></dd></div><div><dt>Add-ons</dt><dd id="addOut"></dd></div><div><dt>Arrival</dt><dd id="etaOut"></dd></div></dl>
+<div class="rec" id="rec"></div>
+<div class="safety" id="safety" hidden>⚠️ Don't lift the door by hand or pull the red release with a broken spring. Keep clear of the door until a tech arrives.</div>
+<a class="btn btn-gold block" id="bookBtn" href="contact.html">Book this repair</a>
+<p class="tiny" id="estNote">Example pricing for a fictional business. Real prices depend on parts and are confirmed on site.</p></aside>
+</div></section>
+<div class="mobile-bar" id="mobileBar" aria-hidden="true"><span>Example estimate <b id="mbPrice"></b></span><a href="#result" class="btn btn-gold sm">See details</a></div>
+<section class="cta-band"><div class="wrap cta-in"><div><h2>Door stuck? Spring snapped?</h2><p>Most Tucson calls get a tech the same day. Text or call and get a real answer fast.</p></div>
+<div class="cta-btns"><a class="btn btn-gold" href="tel:+15205550148">Call (520) 555-0148</a><a class="btn btn-ghost" href="estimate.html">Get a ballpark price</a></div></div></section></main>
+<footer class="site-foot"><div class="wrap foot-grid">
+<div><a class="brand light" href="index.html"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Copper Canyon</b><small>Garage Doors · Tucson</small></span></a>
+<p>Springs, openers, off-track doors and new installs across Tucson, Oro Valley, Marana, Vail and Green Valley.</p></div>
+<div><h2>Pages</h2><ul><li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li><li><a href="estimate.html" aria-current="page">Repair Estimator</a></li><li><a href="about.html">About & Reviews</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+<div><h2>Reach us</h2><ul><li><a href="tel:+15205550148">(520) 555-0148</a></li><li><a href="mailto:hello@example.com">hello@example.com</a></li><li>Mon–Sat 7am–6pm · Emergency line 24/7</li></ul></div>
+</div><p class="wrap fine">© 2026 Copper Canyon Garage Doors — a fictional business built as a website portfolio example. Phone, email, reviews, prices and stats are placeholders, not real data.</p></footer>
+<script src="app.js"></script></body></html>
