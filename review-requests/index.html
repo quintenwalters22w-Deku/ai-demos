@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Requests for Tucson Trades | Quinten Walters</title>
+<meta name="description" content="Every finished job gets a friendly text asking how it went. Happy customers get your review link, unhappy ones come straight to you first. Built for Tucson trades businesses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="demo-banner" role="note">Demo page: business names, customers, ratings, reviews and numbers below are example content, not real customer results.</div>
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Quinten Walters home"><span class="dot"></span>Quinten Walters<span class="sub">for local trades</span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+    <nav id="menu" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#try">Try it</a>
+      <a href="#calc">Review math</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-red sm" href="#contact">Book a demo</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Review Requests</p>
+      <h1>Great work deserves <span class="red">more than 4 reviews.</span></h1>
+      <p class="lead">Your happy customers mean to leave a review. They just forget. Review Requests texts every customer right after the job, asks how it went, and sends the happy ones straight to your review page. Anyone who had a rough time comes to you first, privately.</p>
+      <div class="cta-row">
+        <a class="btn btn-red" href="#try">Try the customer side</a>
+        <a class="btn btn-ghost" href="#calc">See your review math</a>
+      </div>
+      <ul class="ticks">
+        <li>One text per finished job, never spammy</li>
+        <li>Unhappy customers reach you before the internet</li>
+        <li>Opt-outs honored instantly</li>
+      </ul>
+    </div>
+    <div class="hero-visual" aria-label="Example review request flow">
+      <div class="rating-card">
+        <div class="rc-top"><b>Saguaro Sky Solar</b><small>Example business</small></div>
+        <div class="rc-score"><span id="heroScore">4.6</span><span class="stars" id="heroStars" aria-hidden="true">★★★★★</span></div>
+        <div class="rc-count"><span id="heroCount">11</span> reviews <em id="heroBump">+1</em></div>
+      </div>
+      <div class="phone">
+        <div class="phone-top"><span>Saguaro Sky Solar</span><small>Example</small></div>
+        <div class="thread" id="heroThread" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="strip">
+  <div class="wrap strip-in">
+    <div><b>Right after the job</b><span>When they're happiest</span></div>
+    <div><b>One quick question</b><span>"How'd we do, 1 to 5?"</span></div>
+    <div><b>Smart routing</b><span>Happy to reviews, unhappy to you</span></div>
+    <div><b>Your voice</b><span>Written the way you talk</span></div>
+  </div>
+</section>
+
+<section id="how" class="section">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>Finish the job. The asking happens on its own.</h2>
+    <ol class="steps">
+      <li><span class="num">1</span><h3>Job marked done</h3><p>When a job is finished in your calendar, invoice or booking tool (or you just text a number), the customer is queued up.</p></li>
+      <li><span class="num">2</span><h3>A friendly check-in</h3><p>At the time you pick, they get a short thank-you text from your business asking how the job went, 1 to 5.</p></li>
+      <li><span class="num">3</span><h3>Happy? Review link.</h3><p>4s and 5s get a one-tap link to your review page with a simple "would you mind sharing that?" No login hunting.</p></li>
+      <li><span class="num">4</span><h3>Not happy? You first.</h3><p>1s to 3s get a "sorry, the owner will call you" reply and you get an instant alert, so you can fix it before it turns into a public 1-star.</p></li>
+    </ol>
+    <p class="fine">Every customer can still leave a public review any time. We never block or filter reviews; we just make sure you hear about problems early.</p>
+  </div>
+</section>
+
+<section id="try" class="section dark">
+  <div class="wrap">
+    <p class="eyebrow">Try it</p>
+    <h2>Be the customer. See what the owner sees.</h2>
+    <p class="sub-lead">Pick a finished job, pick when the text goes out, then answer as the customer. Everything here is example data.</p>
+    <div class="sim">
+      <div class="sim-controls">
+        <fieldset>
+          <legend>1. Finished job</legend>
+          <div class="chips" id="jobChips" role="radiogroup" aria-label="Finished job"></div>
+        </fieldset>
+        <fieldset>
+          <legend>2. When to ask</legend>
+          <div class="chips" id="timeChips" role="radiogroup" aria-label="When to send"></div>
+        </fieldset>
+        <button class="btn btn-red" id="sendBtn">Mark job done</button>
+        <div class="owner" aria-live="polite">
+          <h3>Owner's phone</h3>
+          <ul id="ownerLog"><li class="muted">Alerts show up here.</li></ul>
+        </div>
+      </div>
+      <div class="sim-phone">
+        <div class="phone big">
+          <div class="phone-top"><span id="simBiz">Customer's phone</span><small>Example</small></div>
+          <div class="thread" id="simThread" aria-live="polite"><p class="empty">Mark a job done to start.</p></div>
+          <div class="rate" id="rateRow" hidden>
+            <span>Reply as the customer:</span>
+            <div class="rate-btns" id="rateBtns"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="calc" class="section">
+  <div class="wrap calc-grid">
+    <div>
+      <p class="eyebrow">Review math</p>
+      <h2>How fast could your reviews grow?</h2>
+      <p class="sub-lead">Move the sliders to your numbers. The result is a rough example estimate, not a promise.</p>
+      <div class="field"><label for="jobs">Finished jobs per month <output id="jobsO">40</output></label><input type="range" id="jobs" min="5" max="300" step="5" value="40"></div>
+      <div class="field"><label for="now">Reviews you have today <output id="nowO">18</output></label><input type="range" id="now" min="0" max="400" step="1" value="18"></div>
+      <div class="field"><label for="leave">Customers who'd leave one if asked <output id="leaveO">15%</output></label><input type="range" id="leave" min="5" max="40" step="1" value="15"></div>
+    </div>
+    <div class="calc-out" aria-live="polite">
+      <div class="big-num"><span id="newRev">72</span><small>new reviews in 12 months (example estimate)</small></div>
+      <div class="bars" id="bars" aria-hidden="true"></div>
+      <div class="kpis">
+        <div><b id="tot">90</b><span>total after a year</span></div>
+        <div><b id="perWk">1.4</b><span>new per week</span></div>
+        <div><b id="mult">5x</b><span>today's count</span></div>
+      </div>
+      <p class="fine" id="calcNote"></p>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section soft">
+  <div class="wrap narrow center">
+    <p class="eyebrow">Pricing</p>
+    <h2>Priced on a quick call, around your shop.</h2>
+    <p class="sub-lead">Review Requests is usually set up alongside text-back or a receptionist, so we price it on a 15-minute call based on how you mark jobs done and how many you finish. Always negotiable.</p>
+    <div class="price-card">
+      <ul class="incl">
+        <li>Thank-you and check-in texts written in your voice</li>
+        <li>Happy customers sent to your review page in one tap</li>
+        <li>Instant private alert for anyone unhappy</li>
+        <li>Monthly maintenance and fixes included</li>
+      </ul>
+      <a class="btn btn-red" href="#contact">Book a 15-minute call</a>
+      <p class="fine">Texting and phone-number costs are paid separately, at cost.</p>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="section">
+  <div class="wrap narrow">
+    <p class="eyebrow">FAQ</p>
+    <h2>Questions owners ask</h2>
+    <div class="faq">
+      <details><summary>Will customers feel spammed?</summary><p>No. Each customer gets one thank-you check-in per job and, if they're happy, one link. No reminder chains, no marketing blasts.</p></details>
+      <details><summary>Is it allowed to send unhappy customers to me first?</summary><p>Yes, as long as nobody is blocked from posting. Every customer can still leave a public review whenever they want. This just gives you the chance to make it right first.</p></details>
+      <details><summary>How does it know a job is done?</summary><p>It can watch your calendar, invoices or booking software, or you can text a customer's name and number to a private number when you wrap up. We pick whatever you already do.</p></details>
+      <details><summary>Can I change the wording?</summary><p>Anytime. Tell us and it's updated. Changes are included in the monthly plan.</p></details>
+      <details><summary>What if someone texts STOP?</summary><p>They're removed right away and never texted again.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="section dark">
+  <div class="wrap contact-grid">
+    <div>
+      <p class="eyebrow">Book a demo</p>
+      <h2>See it with your business name on it.</h2>
+      <p>I'll set up a quick example with your business and walk you through it on a call. No pressure, no contracts on the first call.</p>
+      <p class="direct">Call or text <a href="tel:+15204740291">520-474-0291</a><br>Email <a href="mailto:QuintenWalters22@outlook.com">QuintenWalters22@outlook.com</a></p>
+    </div>
+    <form id="form" novalidate>
+      <div class="f"><label for="fn">Your name</label><input id="fn" name="name" autocomplete="name" required><small class="err"></small></div>
+      <div class="f"><label for="fb">Business name</label><input id="fb" name="biz" required><small class="err"></small></div>
+      <div class="f"><label for="fp">Phone</label><input id="fp" name="phone" type="tel" autocomplete="tel" required><small class="err"></small></div>
+      <div class="f"><label for="fj">Jobs finished per month</label><select id="fj"><option>Under 20</option><option>20 to 60</option><option>60 to 150</option><option>150+</option></select></div>
+      <button class="btn btn-red" type="submit">Request my demo</button>
+      <p class="ok" id="ok" hidden role="status">Thanks! This is a demo form, so nothing was sent. On the live page, I'd reach out within one business day.</p>
+    </form>
+  </div>
+</section>
+</main>
+<footer class="foot"><div class="wrap">© 2026 Quinten Walters · Tucson, AZ · Example business names, customers, ratings, reviews and figures on this page are for demonstration only.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
