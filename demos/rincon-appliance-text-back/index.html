@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Missed-Call Text-Back Live Timeline — Rincon Appliance Rescue (Demo)</title>
+<meta name="description" content="Interactive demo: pick a missed call, steer the customer's replies, and watch an auto text-back qualify, check the service area, book a repair and text the owner a summary. Example content only.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#demo">Skip to the demo</a>
+<div class="demo-banner" role="note">Interactive demo. Rincon Appliance Rescue is a fictional business; every customer, phone number, address, price and figure on this page is example content.</div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#"><span class="logo" aria-hidden="true">❄</span><span><b>Rincon Appliance Rescue</b><small>Example business · Tucson, AZ</small></span></a>
+    <nav aria-label="Page">
+      <a href="#demo">Live timeline</a><a href="#how">How it works</a><a href="#calc">Missed-call math</a><a href="#faq">FAQ</a><a href="#contact" class="nav-cta">Get this</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="eyebrow">Missed-call text-back · interactive demo</p>
+    <h1>Missed the call? <span>Text them back in 5 seconds.</span></h1>
+    <p class="lede">When a homeowner's fridge quits, they call the next shop on the list if nobody picks up. Auto text-back replies before they dial again, asks the right questions, checks your service area and books the repair. You get one clean summary text.</p>
+    <div class="hero-cta"><a class="btn primary" href="#demo">Run a missed call</a><a class="btn ghost" href="#calc">Do the math</a></div>
+    <ul class="hero-stats" aria-label="Example figures">
+      <li><b>~5s</b><span>to first text (example)</span></li>
+      <li><b>24/7</b><span>day or night</span></li>
+      <li><b>STOP</b><span>opt-out always honored</span></li>
+    </ul>
+  </div>
+  <div class="hero-card" aria-hidden="true">
+    <div class="hc-call"><span class="hc-ic">📵</span><div><b>Missed call</b><small>(520) 555-0172 · 6:48 PM</small></div></div>
+    <div class="hc-line"></div>
+    <div class="bub biz">Hi, this is Rincon Appliance Rescue. Sorry we missed you! What appliance can we help with?</div>
+    <div class="bub cus">My fridge stopped cooling 😩</div>
+    <div class="bub biz">Got it. Keep the doors shut, food stays cold ~4 hrs. Want tomorrow 8–10 AM?</div>
+    <div class="hc-book">✅ Booked · owner notified</div>
+  </div>
+</section>
+
+<section id="demo" class="demo-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Live timeline</p>
+      <h2>Miss a call, then watch what happens</h2>
+      <p>Pick a missed call and a time of day, then choose the customer's replies on the phone. The timeline, owner dashboard and activity feed update as it runs.</p>
+    </div>
+
+    <div class="controls">
+      <div class="scenarios" role="radiogroup" aria-label="Choose a missed call">
+        <button class="scn" type="button" role="radio" aria-checked="false" data-s="fridge"><span aria-hidden="true">🧊</span><b>Fridge not cooling</b><small>Food at risk</small></button>
+        <button class="scn" type="button" role="radio" aria-checked="false" data-s="washer"><span aria-hidden="true">🫧</span><b>Washer leaking</b><small>Water on the floor</small></button>
+        <button class="scn" type="button" role="radio" aria-checked="false" data-s="oven"><span aria-hidden="true">🔥</span><b>Oven won't heat</b><small>Gas or electric</small></button>
+        <button class="scn" type="button" role="radio" aria-checked="false" data-s="spam"><span aria-hidden="true">🛡️</span><b>Spam / out of area</b><small>Filter it out</small></button>
+      </div>
+      <div class="toggles">
+        <span id="hrsLbl">Call came in</span>
+        <div class="seg" role="radiogroup" aria-labelledby="hrsLbl">
+          <button type="button" role="radio" aria-checked="true" data-h="day">Business hours</button>
+          <button type="button" role="radio" aria-checked="false" data-h="night">After hours</button>
+        </div>
+        <label class="speed"><input type="checkbox" id="fast"> Fast mode</label>
+        <button type="button" class="btn small ghost-dark" id="reset">Reset demo</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="tl-col">
+        <h3>Timeline <small id="tlClock">+0:00</small></h3>
+        <ol class="timeline" id="timeline" aria-live="polite" aria-label="Missed call timeline">
+          <li class="empty">Pick a missed call above to start.</li>
+        </ol>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone" role="region" aria-label="Customer's phone (simulated)">
+          <div class="ph-notch" aria-hidden="true"></div>
+          <div class="ph-top"><b id="phName">Rincon Appliance Rescue</b><small id="phSub">Customer's phone · simulated</small></div>
+          <ol class="thread" id="thread" aria-live="polite" aria-label="Text conversation">
+            <li class="ph-empty">Texts appear here after a missed call.</li>
+          </ol>
+          <div class="replies" id="replies" role="group" aria-label="Choose the customer's reply"></div>
+        </div>
+      </div>
+
+      <aside class="dash" aria-label="Owner dashboard (example)">
+        <h3>Owner dashboard <small>(example)</small></h3>
+        <ul class="kpis">
+          <li><b id="kMiss">0</b><span>missed calls</span></li>
+          <li><b id="kText">0</b><span>texted back</span></li>
+          <li><b id="kReply">0</b><span>replied</span></li>
+          <li><b id="kBook">0</b><span>booked</span></li>
+          <li><b id="kStop">0</b><span>opted out</span></li>
+          <li class="rev"><b id="kRev">$0</b><span>example recovered revenue</span></li>
+        </ul>
+        <div class="owner-phone">
+          <p class="op-head">Owner's phone</p>
+          <div class="op-screen" id="ownerSms" aria-live="polite"><p class="op-empty">Summary texts land here when a conversation wraps up.</p></div>
+        </div>
+        <h4>Activity feed</h4>
+        <ol class="feed" id="feed"><li class="empty">No activity yet.</li></ol>
+      </aside>
+    </div>
+    <p class="fine">Repair values in the dashboard are example averages for illustration, not real results.</p>
+  </div>
+</section>
+
+<section id="how" class="how wrap">
+  <div class="sec-head"><p class="eyebrow">How it works</p><h2>Four steps, set up once</h2></div>
+  <ol class="steps">
+    <li><span>1</span><h3>A call goes unanswered</h3><p>You're under a dishwasher or it's 8 PM. The call rings out like it always has.</p></li>
+    <li><span>2</span><h3>A text goes out in seconds</h3><p>The customer gets a friendly text in your shop's name before they call the next company.</p></li>
+    <li><span>3</span><h3>It qualifies and books</h3><p>Appliance, brand, symptom and ZIP, a quick tip if food or water is at risk, then open slots from your calendar.</p></li>
+    <li><span>4</span><h3>You get the summary</h3><p>One text with name, number, problem and booked time. Replies of STOP are honored right away.</p></li>
+  </ol>
+</section>
+
+<section id="calc" class="calc-sec">
+  <div class="wrap calc">
+    <div class="sec-head left"><p class="eyebrow">Missed calls are lost jobs</p><h2>What could text-back win back?</h2><p>Move the sliders to your own numbers. Results are estimates for illustration, not a promise.</p></div>
+    <form class="calc-form" id="calcForm" onsubmit="return false">
+      <label for="miss">Missed calls per week <output id="oMiss" for="miss">10</output></label><input type="range" id="miss" min="1" max="50" value="10">
+      <label for="rate">Share recovered by text-back <output id="oRate" for="rate">25%</output></label><input type="range" id="rate" min="5" max="60" step="5" value="25">
+      <label for="job">Average repair ticket <output id="oJob" for="job">$280</output></label><input type="range" id="job" min="100" max="1200" step="10" value="280">
+    </form>
+    <div class="calc-out" aria-live="polite">
+      <div><span>Jobs recovered per month</span><b id="rJobs">11</b></div>
+      <div><span>Revenue recovered per month</span><b id="rRev">$3,033</b></div>
+      <div><span>Net after $99/mo retainer</span><b id="rNet">$2,934</b></div>
+      <div class="hl"><span>$1,000 setup pays for itself in about</span><b id="rBreak">2 weeks</b></div>
+    </div>
+    <p class="calc-note">Compared against "starting at $1,000 setup + $99/mo, always negotiable." Texting and phone-number costs are paid separately and not included here.</p>
+  </div>
+</section>
+
+<section id="faq" class="faq wrap">
+  <div class="sec-head"><p class="eyebrow">FAQ</p><h2>Questions shop owners ask</h2></div>
+  <div class="acc" id="acc">
+    <h3><button type="button" aria-expanded="false" aria-controls="f1" id="q1">Will customers know it's automated?<span aria-hidden="true"></span></button></h3>
+    <div id="f1" role="region" aria-labelledby="q1" hidden><p>The texts are written in your shop's voice and say they're from your business. You can step into any thread and reply yourself at any time.</p></div>
+    <h3><button type="button" aria-expanded="false" aria-controls="f2" id="q2">What if they reply STOP?<span aria-hidden="true"></span></button></h3>
+    <div id="f2" role="region" aria-labelledby="q2" hidden><p>They're opted out immediately, get one confirmation, and never get another automated text. Every first text includes the opt-out line.</p></div>
+    <h3><button type="button" aria-expanded="false" aria-controls="f3" id="q3">Does it work with my current phone number?<span aria-hidden="true"></span></button></h3>
+    <div id="f3" role="region" aria-labelledby="q3" hidden><p>In most cases yes. We set it up around the number your customers already call. Texting and phone-number costs are billed separately from the setup and retainer.</p></div>
+    <h3><button type="button" aria-expanded="false" aria-controls="f4" id="q4">What about calls outside my service area or spam?<span aria-hidden="true"></span></button></h3>
+    <div id="f4" role="region" aria-labelledby="q4" hidden><p>It checks the ZIP against your list, politely lets out-of-area callers know, and filters robocalls so they never reach your calendar.</p></div>
+    <h3><button type="button" aria-expanded="false" aria-controls="f5" id="q5">What does it cost?<span aria-hidden="true"></span></button></h3>
+    <div id="f5" role="region" aria-labelledby="q5" hidden><p>Starting at $1,000 setup plus $99/mo, and price is always negotiable. The retainer covers maintenance, tweaks and fixes.</p></div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap contact-in">
+    <div>
+      <p class="eyebrow">Want this for your shop?</p>
+      <h2>Starting at $1,000 setup + $99/mo</h2>
+      <p>Always negotiable. Texting and phone-number costs are separate. Talk to Quinten about setting up missed-call text-back for your business.</p>
+    </div>
+    <div class="cta-btns">
+      <a class="btn primary" href="tel:+15204740291">Call 520-474-0291</a>
+      <a class="btn ghost" href="mailto:QuintenWalters22@outlook.com?subject=Missed-call%20text-back">Email QuintenWalters22@outlook.com</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot"><div class="wrap">Portfolio demo. Rincon Appliance Rescue, its customers, numbers, addresses, slots, prices and figures are fictional example content. Safety tips in the demo are illustrative only.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
